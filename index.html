@@ -2026,21 +2026,23 @@ function initClock() {
 
     // Draw 24h ticks
     if (ticksGroup) {
-        // 24h clock: 24 ticks, major every 6h (0,6,12,18)
-        const labels = {0:'12AM', 6:'6AM', 12:'12PM', 18:'6PM'};
-        let tickHTML = Array.from({length:24}, (_,i) => {
-            const ang = (i/24)*2*Math.PI - Math.PI/2;
-            const big = i%6===0, r1=big?41:46, sw=big?2.5:1, col=big?'#cbd5e1':'#475569';
+        // 12h clock: 12 hour ticks + 60 minute ticks
+        const hourLabels = {12:'12',3:'3',6:'6',9:'9'};
+        let tickHTML = Array.from({length:60}, (_,i) => {
+            const ang = (i/60)*2*Math.PI - Math.PI/2;
+            const isHour = i%5===0;
+            const r1 = isHour ? 43 : 47, sw = isHour ? 2 : 0.8;
+            const col = isHour ? '#94a3b8' : '#334155';
             const x1=60+r1*Math.cos(ang),y1=60+r1*Math.sin(ang);
             const x2=60+51*Math.cos(ang),y2=60+51*Math.sin(ang);
             return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="${sw}"/>`;
         }).join('');
-        // Add hour labels at 0,6,12,18
-        tickHTML += Object.entries(labels).map(([h, lbl]) => {
-            const ang = (parseInt(h)/24)*2*Math.PI - Math.PI/2;
-            const r = 34;
+        // Add hour numbers at 12,3,6,9
+        tickHTML += Object.entries(hourLabels).map(([h, lbl]) => {
+            const ang = (parseInt(h)/12)*2*Math.PI - Math.PI/2;
+            const r = 35;
             const x = 60+r*Math.cos(ang), y = 60+r*Math.sin(ang);
-            return `<text x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="middle" font-size="5.5" fill="#64748b" font-family="monospace" font-weight="bold">${lbl}</text>`;
+            return `<text x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="sans-serif" font-weight="bold">${lbl}</text>`;
         }).join('');
         ticksGroup.innerHTML = tickHTML;
     }
@@ -2052,14 +2054,20 @@ function initClock() {
 function minsToArc(startMin, endMin, r, color, opacity='0.75') {
     return minsToArcR(startMin, endMin, r, 5, color, opacity);
 }
-function minsToArcR(startMin, endMin, r, w, color, opacity='0.9') {
-    // Draw arc using many small line segments for reliability
-    const total = 24*60;
-    const steps = Math.max(30, Math.round((endMin-startMin)/10));
+function minsToArcR(startMins24, endMins24, r, w, color, opacity='0.9') {
+    // Convert 24h minutes to 12h clock angle
+    // 12h clock: full rotation = 720 mins = 360°
+    function to12hAngle(mins24) {
+        const h = Math.floor(mins24/60) % 12;
+        const m = mins24 % 60;
+        return (h*30 + m*0.5) * Math.PI/180 - Math.PI/2; // radians, 0=12 o'clock
+    }
+    
+    const steps = Math.max(40, Math.round(Math.abs(endMins24-startMins24)/8));
     const pts = [];
     for (let i=0; i<=steps; i++) {
-        const mins = startMin + (endMin-startMin)*(i/steps);
-        const a = (mins/total)*Math.PI*2 - Math.PI/2;
+        const mins = startMins24 + (endMins24-startMins24)*(i/steps);
+        const a = to12hAngle(mins);
         pts.push(`${(60+r*Math.cos(a)).toFixed(1)},${(60+r*Math.sin(a)).toFixed(1)}`);
     }
     return `<polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="${w}" stroke-opacity="${opacity}" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -2074,9 +2082,9 @@ function tickClock() {
     const totalMins = h * 60 + m;
 
     // Rotate hands using Thailand time
-    // 24h clock: full rotation = 24h → each hour = 15°
-    const hAngle = (h * 15) + (m * 0.25) + (s * (0.25/60));
-    // Minute hand: 12h (standard) → each min = 6°
+    // 12h clock: each hour = 30°, each min = 0.5°
+    const h12 = h % 12;
+    const hAngle = (h12 * 30) + (m * 0.5) + (s * (0.5/60));
     const mAngle = (m * 6) + (s * 0.1);
     const sAngle = s * 6;
     // 24h clock - hour hand goes full circle in 24h to match session arcs
