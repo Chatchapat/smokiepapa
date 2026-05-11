@@ -2052,15 +2052,17 @@ function initClock() {
 function minsToArc(startMin, endMin, r, color, opacity='0.75') {
     return minsToArcR(startMin, endMin, r, 5, color, opacity);
 }
-function minsToArcR(startMin, endMin, r, w, color, opacity='0.85') {
+function minsToArcR(startMin, endMin, r, w, color, opacity='0.9') {
+    // Draw arc using many small line segments for reliability
     const total = 24*60;
-    const sa = (startMin/total)*Math.PI*2 - Math.PI/2;
-    const ea = (endMin/total)*Math.PI*2 - Math.PI/2;
-    const cx=60, cy=60;
-    const x1=cx+r*Math.cos(sa), y1=cy+r*Math.sin(sa);
-    const x2=cx+r*Math.cos(ea), y2=cy+r*Math.sin(ea);
-    const large = (endMin-startMin) > 720 ? 1 : 0;
-    return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${w}" stroke-opacity="${opacity}" stroke-linecap="round"/>`;
+    const steps = Math.max(30, Math.round((endMin-startMin)/10));
+    const pts = [];
+    for (let i=0; i<=steps; i++) {
+        const mins = startMin + (endMin-startMin)*(i/steps);
+        const a = (mins/total)*Math.PI*2 - Math.PI/2;
+        pts.push(`${(60+r*Math.cos(a)).toFixed(1)},${(60+r*Math.sin(a)).toFixed(1)}`);
+    }
+    return `<polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="${w}" stroke-opacity="${opacity}" stroke-linecap="round" stroke-linejoin="round"/>`;
 }
 
 function tickClock() {
