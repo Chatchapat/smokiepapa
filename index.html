@@ -359,7 +359,7 @@
                                         <!-- History Table -->
                     <div class="card overflow-hidden flex-1 flex flex-col">
                         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center">
-                            <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span>Trade History (ประจำวัน)</h3>
+                            <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span data-i18n="historyTitle">Trade History (ประจำวัน)</span></h3>
                             <span id="dailyPnlSummary" class="text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400">Total P&L: $0.00</span>
                         </div>
                         <div class="overflow-x-auto flex-1">
@@ -393,7 +393,7 @@
                         <div class="flex flex-col gap-3.5">
                             <div>
                                 <div class="mb-2">
-                                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400">1. Time (In - Out)</label>
+                                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400" data-i18n="timeLabel">1. Time (In - Out)</label>
                                 </div>
                                 <!-- Clock Widget -->
                                 <div class="bg-slate-100 dark:bg-slate-800/60 rounded-xl p-3 mb-3 border border-gray-200 dark:border-slate-700">
@@ -447,7 +447,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">2. Order Direction</label>
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="dirLabel">2. Order Direction</label>
                                 <input type="hidden" id="direction" value="BUY">
                                 <div class="flex gap-2">
                                     <button id="btnBuy" onclick="setDirection('BUY')" class="select-btn bg-blue-600 text-white shadow-md">BUY</button>
@@ -455,7 +455,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">3. Trade Result</label>
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="resLabel">3. Trade Result</label>
                                 <input type="hidden" id="result" value="RUNNING">
                                 <div class="flex gap-1.5 sm:gap-2">
                                     <button id="btnRun" onclick="setResult('RUNNING')" class="select-btn bg-cyan-500 text-white shadow-md">RUNNING</button>
@@ -465,12 +465,12 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">4. Trade Setup</label>
+                                <label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1" data-i18n="setupLabel">4. Trade Setup</label>
                                 <input type="text" id="tradeSetup" class="input-field py-2 text-sm" placeholder="e.g. Zone BO, STO">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">5. Entry Price</label><input type="number" id="entryPrice" class="input-field py-2 text-sm" placeholder="0.00" step="any" oninput="calculatePrices()"></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">6. Lot Size</label><input type="number" id="lotSize" class="input-field py-2 text-sm" placeholder="0.00" step="any" oninput="calculatePrices()"></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="entryLabel">5. Entry Price</label><input type="number" id="entryPrice" class="input-field py-2 text-sm" placeholder="0.00" step="any" oninput="calculatePrices()"></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lotLabel">6. Lot Size</label><input type="number" id="lotSize" class="input-field py-2 text-sm" placeholder="0.00" step="any" oninput="calculatePrices()"></div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
@@ -488,16 +488,16 @@
                                 <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="number" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="0" step="any"></div>
                                 <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="จุด" step="any"></div>
                             </div>
-                            <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">11. Remark</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
+                            <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="remarkLabel">11. Remark</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
                             <div class="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                <label class="block text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1">12. ความมั่นใจ & อารมณ์</label>
+                                <label class="block text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1" data-i18n="confLabel">12. ความมั่นใจ & อารมณ์</label>
                                 <div class="flex items-center gap-1 mb-2" id="starRating">
                                     <span class="star" onclick="setConfidence(1)">★</span><span class="star" onclick="setConfidence(2)">★</span><span class="star" onclick="setConfidence(3)">★</span><span class="star" onclick="setConfidence(4)">★</span><span class="star" onclick="setConfidence(5)">★</span>
                                 </div>
                                 <input type="text" id="tradeEmotion" class="input-field py-2 text-xs" placeholder="อารมณ์ตอนเข้าเทรด เช่น โลภ, กลัวตกรถ...">
                             </div>
                             <div class="border-t border-gray-200 dark:border-slate-700 pt-3">
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">13. ภาพกราฟ (Ctrl+V วางรูปได้)</label>
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2" data-i18n="imgLabel">13. ภาพกราฟ (Ctrl+V วางรูปได้)</label>
                                 <input type="file" id="orderImageInput" multiple accept="image/*" class="text-[10px] text-gray-500 dark:text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-100 file:text-blue-700 dark:file:bg-slate-700 dark:file:text-white file:font-medium cursor-pointer" onchange="handleFileInput(event, currentImages, renderImagePreviews)">
                                 <div id="imagePreviewContainer" class="flex gap-2 mt-2 flex-wrap min-h-[40px] items-center bg-gray-100 dark:bg-slate-800/50 p-2 rounded border border-gray-300 dark:border-slate-700 border-dashed"></div>
                             </div>
@@ -733,6 +733,9 @@
         </div>
     </div>
 </div>
+
+<!-- ══ CLOCK TOOLTIP ══ -->
+<div id="clockTooltip" style="display:none;position:fixed;z-index:999;background:rgba(15,23,42,0.92);color:white;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:bold;pointer-events:none;border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(4px);"></div>
 
 <!-- ══ IMAGE LIGHTBOX ══ -->
 <div id="imageModal" class="fixed inset-0 bg-slate-900/95 hidden z-[60] flex flex-col items-center justify-center backdrop-blur-sm">
@@ -1052,6 +1055,35 @@ function setLang(lang, save=true) {
     document.getElementById('tpModeBtn').innerText = inputModeTP==='pts'?i18nDict[lang].modePts:i18nDict[lang].modePrice;
     const btn=document.getElementById('saveBtn');
     if(editingId) btn.innerText=i18nDict[lang].updateOrderBtn; else btn.innerText=i18nDict[lang].saveOrderBtn;
+
+    // Translate placeholders
+    const phMap = {
+        tradeSetup: lang==='en'?'e.g. Zone BO, STO':'e.g. Zone BO, STO',
+        tradeRemark: lang==='en'?'Additional notes...':'ข้อสังเกตเพิ่มเติม...',
+        tradeEmotion: lang==='en'?'Emotion e.g. FOMO, Greedy...':'อารมณ์ตอนเข้าเทรด เช่น โลภ, กลัวตกรถ...',
+        entryPrice: '0.00', lotSize: '0.00',
+    };
+    Object.entries(phMap).forEach(([id, ph]) => {
+        const el = document.getElementById(id);
+        if (el) el.placeholder = ph;
+    });
+
+    // Translate form title if not editing
+    if (!editingId) {
+        const ft = document.getElementById('formTitle');
+        if (ft) ft.innerText = '🎯 ' + (lang==='th' ? 'บันทึกออเดอร์' : 'Order Entry');
+    }
+
+    // Translate note buttons
+    const snb = document.getElementById('saveNoteBtn');
+    const enb = document.getElementById('editNoteBtn');
+    if (snb) snb.innerHTML = lang==='th' ? '💾 บันทึก Note' : '💾 Save Note';
+    if (enb) enb.innerHTML = lang==='th' ? '✏️ แก้ไข Note' : '✏️ Edit Note';
+
+    // Translate history title
+    const ht = document.querySelector('[data-i18n="historyTitle"]');
+    if (ht) ht.innerHTML = lang==='th' ? 'Trade History (ประจำวัน)' : 'Daily Trade History';
+
     if(save) saveSettings('lang',lang);
 }
 
@@ -2042,9 +2074,44 @@ function initClock() {
         { start:1140, end:1440, color:'#22c55e', r:32, w:4, opacity:'0.95' },  // NY 19:00-24:00
         { start:0,    end:240,  color:'#22c55e', r:32, w:4, opacity:'0.5' },  // NY 00:00-04:00
     ];
-    arcsGroup.innerHTML = ARCS.map(s =>
-        minsToArcR(s.start, s.end, s.r, s.w, s.color, s.opacity||'0.85')
-    ).join('');
+    // Draw arcs with IDs for dynamic color update
+    const arcSessions = [
+        { id:'arcSyd', start:300,  end:840,  color:'#f97316', r:53, w:4, name:'Sydney 5AM–2PM' },
+        { id:'arcTok', start:420,  end:960,  color:'#ec4899', r:46, w:4, name:'Tokyo 7AM–4PM' },
+        { id:'arcLon', start:840,  end:1380, color:'#3b82f6', r:39, w:4, name:'London 2PM–11PM' },
+        { id:'arcNy1', start:1140, end:1440, color:'#22c55e', r:32, w:4, name:'New York 7PM–4AM' },
+        { id:'arcNy2', start:0,    end:240,  color:'#22c55e', r:32, w:4, name:'New York 7PM–4AM', opacity:0.5 },
+    ];
+    arcsGroup.innerHTML = arcSessions.map(s => {
+        const pts = [];
+        const steps = Math.max(40, Math.round((s.end-s.start)/8));
+        for(let i=0;i<=steps;i++){
+            const mins=s.start+(s.end-s.start)*(i/steps);
+            const h12=Math.floor(mins/60)%12, m12=mins%60;
+            const a=((h12*30+m12*0.5)*Math.PI/180)-Math.PI/2;
+            pts.push(`${(60+s.r*Math.cos(a)).toFixed(1)},${(60+s.r*Math.sin(a)).toFixed(1)}`);
+        }
+        return `<polyline id="${s.id}" data-name="${s.name}" points="${pts.join(' ')}" fill="none" stroke="#334155" stroke-width="${s.w}" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer"/>`;
+    }).join('');
+    window._arcSessions = arcSessions;
+
+    // Tooltip on hover
+    const tooltip = document.getElementById('clockTooltip');
+    const svgEl = document.getElementById('clockSvg');
+    if (svgEl && tooltip) {
+        svgEl.addEventListener('mousemove', e => {
+            const hovered = e.target.closest('polyline');
+            if (hovered && hovered.dataset.name) {
+                tooltip.textContent = hovered.dataset.name;
+                tooltip.style.display = 'block';
+                tooltip.style.left = (e.clientX+12)+'px';
+                tooltip.style.top = (e.clientY-8)+'px';
+            } else {
+                tooltip.style.display = 'none';
+            }
+        });
+        svgEl.addEventListener('mouseleave', () => { tooltip.style.display='none'; });
+    }
 
     // Draw 24h ticks
     if (ticksGroup) {
@@ -2151,6 +2218,24 @@ function tickClock() {
 
     // Check NY overnight (19:00-04:00)
     const nyActive = totalMins >= 1140 || totalMins < 240; // NY: 19:00-04:00
+
+    // Update arc colors based on active sessions
+    if (window._arcSessions) {
+        const sessionActives = {
+            arcSyd: totalMins>=300 && totalMins<840,
+            arcTok: totalMins>=420 && totalMins<960,
+            arcLon: totalMins>=840 && totalMins<1380,
+            arcNy1: totalMins>=1140,
+            arcNy2: totalMins<240,
+        };
+        window._arcSessions.forEach(s => {
+            const el = document.getElementById(s.id);
+            if (!el) return;
+            const active = sessionActives[s.id];
+            el.setAttribute('stroke', active ? s.color : '#334155');
+            el.setAttribute('stroke-opacity', active ? (s.opacity||'0.92') : '0.4');
+        });
+    }
 
     TH_SESSIONS.forEach(sess => {
         const el = document.getElementById(sess.id);
