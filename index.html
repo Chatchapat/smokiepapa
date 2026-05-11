@@ -392,7 +392,7 @@
                                     <div class="flex items-center gap-3">
                                         <div id="clockWidget" style="flex-shrink:0">
                                         <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" id="clockSvg">
-                                            <circle cx="60" cy="60" r="55" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+                                            <circle cx="60" cy="60" r="55" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
                                             <g id="clockArcs"></g>
                                             <g id="clockTicks"></g>
                                             <line id="clockHour" x1="60" y1="60" x2="60" y2="25" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
@@ -402,23 +402,23 @@
                                         </svg>
                                         </div>
                                         <!-- Right side: time + sessions -->
-                                        <div class="flex-1 min-w-0 text-center">
+                                        <div class="flex-1 min-w-0 text-left">
                                             <div id="clockTimeText" class="font-mono font-bold text-xl text-gray-900 dark:text-white mb-0.5 tabular-nums">00:00:00</div>
                                             <div id="clockDateText" class="text-sm font-semibold text-gray-700 dark:text-white mb-2"></div>
                                             <div class="space-y-1" id="sessionBar">
-                                                <div id="sessSyd" class="flex items-center justify-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessSyd" class="flex items-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold text-center w-[64px] sess-name" style="color:#f97316">Sydney</span>
                                                     <span class="font-mono text-xs font-bold text-gray-700 dark:text-white w-[80px] text-left" id="timeSyd">5AM–2PM</span>
                                                 </div>
-                                                <div id="sessTok" class="flex items-center justify-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessTok" class="flex items-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold text-center w-[64px] sess-name" style="color:#ec4899">Tokyo</span>
                                                     <span class="font-mono text-xs font-bold text-gray-700 dark:text-white w-[80px] text-left" id="timeTok">7AM–4PM</span>
                                                 </div>
-                                                <div id="sessLon" class="flex items-center justify-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessLon" class="flex items-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold text-center w-[64px] sess-name" style="color:#3b82f6">London</span>
                                                     <span class="font-mono text-xs font-bold text-gray-700 dark:text-white w-[80px] text-left" id="timeLon">2PM–11PM</span>
                                                 </div>
-                                                <div id="sessNy" class="flex items-center justify-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessNy" class="flex items-center gap-3 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold text-center w-[64px] sess-name" style="color:#22c55e">New York</span>
                                                     <span class="font-mono text-xs font-bold text-gray-700 dark:text-white w-[80px] text-left" id="timeNy">7PM–4AM</span>
                                                 </div>
@@ -2014,11 +2014,11 @@ function initClock() {
 
     // Draw session arcs (TH time UTC+7)
     const ARCS = [
-        { start:300,  end:840,  color:'#f97316', r:52, w:5 },  // SYD 05:00-14:00
-        { start:420,  end:960,  color:'#ec4899', r:45, w:5 },  // TOK 07:00-16:00
-        { start:840,  end:1380, color:'#3b82f6', r:38, w:5 },  // LON 14:00-23:00
-        { start:1140, end:1440, color:'#22c55e', r:31, w:5 },  // NY 19:00-00:00
-        { start:0,    end:240,  color:'#22c55e', r:31, w:5, opacity:'0.5' }, // NY 00:00-04:00
+        { start:300,  end:840,  color:'#f97316', r:53, w:6, opacity:'0.9' },  // SYD 05:00-14:00
+        { start:420,  end:960,  color:'#ec4899', r:46, w:6, opacity:'0.9' },  // TOK 07:00-16:00
+        { start:840,  end:1380, color:'#3b82f6', r:39, w:6, opacity:'0.9' },  // LON 14:00-23:00
+        { start:1140, end:1440, color:'#22c55e', r:32, w:6, opacity:'0.9' },  // NY 19:00-24:00
+        { start:0,    end:240,  color:'#22c55e', r:32, w:6, opacity:'0.5' },  // NY 00:00-04:00
     ];
     arcsGroup.innerHTML = ARCS.map(s =>
         minsToArcR(s.start, s.end, s.r, s.w, s.color, s.opacity||'0.85')
@@ -2087,7 +2087,7 @@ function tickClock() {
     if (timeEl) {
         const h12 = h % 12 || 12;
         const ampm = h < 12 ? 'AM' : 'PM';
-        timeEl.innerHTML = `<span class="text-lg font-bold">${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span> <span class="text-xs font-semibold text-blue-400">${ampm}</span>`;
+        timeEl.innerHTML = `<span class="text-lg font-bold">${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span> <span class="text-xs font-bold text-white">${ampm}</span>`;
     }
 
     // Update date text
