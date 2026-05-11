@@ -140,6 +140,14 @@
             #formSection { position: relative !important; top: 0 !important; }
         }
 
+        /* ── Clock theme ── */
+        .dark .clock-hand-hour { stroke: #ffffff !important; }
+        .clock-hand-hour { stroke: #1e293b !important; }
+        .dark #clockFace { fill: #0f172a; stroke: #334155; }
+        #clockFace { fill: #f8fafc; stroke: #cbd5e1; }
+        .dark .clock-tick-major { stroke: #94a3b8; }
+        .clock-tick-major { stroke: #64748b; }
+
         /* ── Touch improvements ── */
         button, .select-btn, .nav-item { -webkit-tap-highlight-color: transparent; }
         input, textarea, select { font-size: 16px !important; } /* prevent zoom on iOS */
@@ -376,7 +384,7 @@
                     </div>
                 </div>
                 <!-- Order Form -->
-                <div class="w-full xl:w-[360px] shrink-0">
+                <div class="w-full xl:w-[380px] shrink-0">
                     <div class="card p-5 sticky top-4 border-t-4 border-t-blue-500" id="formSection">
                         <div class="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-slate-700 pb-3">
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200" id="formTitle">🎯 บันทึกออเดอร์</h2>
@@ -392,10 +400,10 @@
                                     <div class="flex items-center gap-3">
                                         <div id="clockWidget" style="flex-shrink:0">
                                         <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" id="clockSvg">
-                                            <circle cx="60" cy="60" r="55" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+                                            <circle id="clockFace" cx="60" cy="60" r="55" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
                                             <g id="clockArcs"></g>
                                             <g id="clockTicks"></g>
-                                            <line id="clockHour" x1="60" y1="60" x2="60" y2="25" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+                                            <line id="clockHour" x1="60" y1="60" x2="60" y2="25" stroke="#1e293b" stroke-width="5" stroke-linecap="round" class="clock-hand-hour"/>
                                             <line id="clockMin" x1="60" y1="60" x2="60" y2="15" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                                             <line id="clockSec" x1="60" y1="60" x2="60" y2="12" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
                                             <circle cx="60" cy="60" r="5" fill="#ffffff"/>
@@ -404,23 +412,23 @@
                                         <!-- Right side: time + sessions -->
                                         <div class="flex-1 min-w-0 text-left">
                                             <div id="clockTimeText" class="font-mono font-bold text-xl text-gray-900 dark:text-white mb-0.5 tabular-nums">00:00:00</div>
-                                            <div id="clockDateText" class="text-sm font-semibold text-gray-700 dark:text-white mb-2"></div>
+                                            <div id="clockDateText" class="text-sm font-semibold text-gray-700 dark:text-white mb-1 leading-none"></div>
                                             <div class="space-y-1" id="sessionBar">
-                                                <div id="sessSyd" class="flex items-center gap-2 px-2 py-0 rounded border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-[11px] font-bold w-[54px] sess-name" style="color:#f97316">Sydney</span>
-                                                    <span class="font-mono text-[10px] font-bold text-white w-[72px]" id="timeSyd">5AM–2PM</span>
+                                                <div id="sessSyd" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#f97316">Sydney</span>
+                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeSyd">5AM–2PM</span>
                                                 </div>
-                                                <div id="sessTok" class="flex items-center gap-2 px-2 py-0 rounded border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-[11px] font-bold w-[54px] sess-name" style="color:#ec4899">Tokyo</span>
-                                                    <span class="font-mono text-[10px] font-bold text-white w-[72px]" id="timeTok">7AM–4PM</span>
+                                                <div id="sessTok" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#ec4899">Tokyo</span>
+                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeTok">7AM–4PM</span>
                                                 </div>
-                                                <div id="sessLon" class="flex items-center gap-2 px-2 py-0 rounded border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-[11px] font-bold w-[54px] sess-name" style="color:#3b82f6">London</span>
-                                                    <span class="font-mono text-[10px] font-bold text-white w-[72px]" id="timeLon">2PM–11PM</span>
+                                                <div id="sessLon" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#3b82f6">London</span>
+                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeLon">2PM–11PM</span>
                                                 </div>
-                                                <div id="sessNy" class="flex items-center gap-2 px-2 py-0 rounded border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-[11px] font-bold w-[54px] sess-name" style="color:#22c55e">New York</span>
-                                                    <span class="font-mono text-[10px] font-bold text-white w-[72px]" id="timeNy">7PM–4AM</span>
+                                                <div id="sessNy" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#22c55e">New York</span>
+                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeNy">7PM–4AM</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -494,7 +502,7 @@
                                 <div id="imagePreviewContainer" class="flex gap-2 mt-2 flex-wrap min-h-[40px] items-center bg-gray-100 dark:bg-slate-800/50 p-2 rounded border border-gray-300 dark:border-slate-700 border-dashed"></div>
                             </div>
                         </div>
-                        <div class="mt-6"><button id="saveBtn" onclick="saveTrade()" class="btn-primary py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase">SAVE ORDER</button></div>
+                        <div class="mt-6"><button id="saveBtn" onclick="saveTrade()" class="btn-primary py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase" data-i18n="saveOrderBtn">SAVE ORDER</button></div>
                     </div>
                 </div>
             </div>
@@ -2011,14 +2019,28 @@ function initClock() {
     const arcsGroup = document.getElementById('clockArcs');
     const ticksGroup = document.getElementById('clockTicks');
     if (!arcsGroup) return;
+    
+    // Update clock face color based on theme
+    function updateClockTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const face = document.getElementById('clockFace');
+        const hourHand = document.getElementById('clockHour');
+        const minHand = document.getElementById('clockMin');
+        if (face) { face.setAttribute('fill', isDark ? '#0f172a' : '#f1f5f9'); face.setAttribute('stroke', isDark ? '#334155' : '#cbd5e1'); }
+        if (hourHand) hourHand.setAttribute('stroke', isDark ? '#ffffff' : '#1e293b');
+        if (minHand) minHand.setAttribute('stroke', isDark ? '#ffffff' : '#475569');
+    }
+    updateClockTheme();
+    // Watch for theme changes
+    new MutationObserver(updateClockTheme).observe(document.documentElement, {attributes:true, attributeFilter:['class']});
 
     // Draw session arcs (TH time UTC+7)
     const ARCS = [
-        { start:300,  end:840,  color:'#f97316', r:53, w:5, opacity:'0.9' },  // SYD 05:00-14:00
-        { start:420,  end:960,  color:'#ec4899', r:46, w:5, opacity:'0.9' },  // TOK 07:00-16:00
-        { start:840,  end:1380, color:'#3b82f6', r:39, w:5, opacity:'0.9' },  // LON 14:00-23:00
-        { start:1140, end:1440, color:'#22c55e', r:32, w:5, opacity:'0.9' },  // NY 19:00-24:00
-        { start:0,    end:240,  color:'#22c55e', r:32, w:5, opacity:'0.5' },  // NY 00:00-04:00
+        { start:300,  end:840,  color:'#f97316', r:53, w:4, opacity:'0.95' },  // SYD 05:00-14:00
+        { start:420,  end:960,  color:'#ec4899', r:46, w:4, opacity:'0.95' },  // TOK 07:00-16:00
+        { start:840,  end:1380, color:'#3b82f6', r:39, w:4, opacity:'0.95' },  // LON 14:00-23:00
+        { start:1140, end:1440, color:'#22c55e', r:32, w:4, opacity:'0.95' },  // NY 19:00-24:00
+        { start:0,    end:240,  color:'#22c55e', r:32, w:4, opacity:'0.5' },  // NY 00:00-04:00
     ];
     arcsGroup.innerHTML = ARCS.map(s =>
         minsToArcR(s.start, s.end, s.r, s.w, s.color, s.opacity||'0.85')
@@ -2142,7 +2164,7 @@ function tickClock() {
             const nameSpan = el.querySelector('.sess-name');
             const timeSpan = el.querySelector('span:not(.sess-name)');
             if (nameSpan) { nameSpan.style.color = sess.color; nameSpan.style.fontWeight = '800'; }
-            if (timeSpan) { timeSpan.style.color = '#ffffff'; timeSpan.style.fontWeight = '800'; }
+            const isDark = document.documentElement.classList.contains('dark'); if (timeSpan) { timeSpan.style.color = isDark ? '#ffffff' : '#1e293b'; timeSpan.style.fontWeight = '800'; }
         } else {
             el.style.background = '';
             el.style.color = '';
