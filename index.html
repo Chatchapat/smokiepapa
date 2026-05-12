@@ -6,15 +6,297 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Trading Journal v13</title>
+    <title>Trading Journal v15</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;600&display=swap');
+
+        /* ══════════════════════════════════════
+           WINTER VOID THEME — CSS Variables
+           Dark Void #141616 · Iridium #3D3C38
+           Artillery #746D67 · Equilibrium #A49F9D
+           Falu Red #7F1D1A
+        ══════════════════════════════════════ */
+        :root {
+            --wv-void:        #141616;
+            --wv-iridium:     #3D3C38;
+            --wv-artillery:   #746D67;
+            --wv-equil:       #A49F9D;
+            --wv-falu:        #7F1D1A;
+            --wv-falu-mid:    #9a2420;
+            --wv-snow:        #E8E6E2;
+            --wv-win:         #5a8a5a;
+            --wv-loss:        #b85050;
+            --wv-card:        rgba(36,34,32,0.82);
+            --wv-surface:     rgba(28,26,24,0.9);
+            --wv-border:      rgba(164,159,157,0.12);
+            --wv-border-mid:  rgba(164,159,157,0.22);
+        }
+
         html { transition: font-size 0.3s ease; }
-        body { font-family: 'Google Sans', 'Noto Sans Thai', sans-serif; transition: background-color 0.3s, color 0.3s; }
+
+        /* ── Base body for Winter Void ── */
+        body {
+            font-family: 'Noto Sans Thai', 'Cormorant Garamond', Georgia, serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* ══ WINTER VOID theme class applied to <html> ══ */
+        html.winter-void body {
+            background-color: #0d0f0f !important;
+            color: var(--wv-snow) !important;
+        }
+
+        /* ── Falling snow animation ── */
+        .wv-snowflake {
+            position: fixed; top: -15px; pointer-events: none; z-index: 0;
+            color: rgba(232,230,226,0.5); font-size: 0.9em;
+            opacity: 0; animation: wv-fall linear infinite;
+        }
+        @keyframes wv-fall {
+            0%   { opacity:0; transform: translateY(0) rotate(0deg); }
+            8%   { opacity:0.55; }
+            92%  { opacity:0.25; }
+            100% { opacity:0; transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* ── Pine background canvas ── */
+        #wvBgCanvas {
+            position: fixed; inset: 0; z-index: 0;
+            pointer-events: none; overflow: hidden;
+        }
+        #wvBgCanvas svg { width:100%; height:100%; position:absolute; top:0; left:0; }
+
+        /* ── Winter Void: sidebar override ── */
+        html.winter-void #sidebar {
+            background: rgba(12,14,14,0.97) !important;
+            border-right: 1px solid rgba(164,159,157,0.07) !important;
+        }
+        html.winter-void .nav-item {
+            color: var(--wv-artillery) !important;
+            border-left: 3px solid transparent;
+        }
+        html.winter-void .nav-item:hover {
+            background: rgba(164,159,157,0.05) !important;
+            color: var(--wv-equil) !important;
+        }
+        html.winter-void .nav-item.active {
+            background: rgba(127,29,26,0.14) !important;
+            color: var(--wv-snow) !important;
+            border-left: 4px solid var(--wv-falu) !important;
+            font-weight: bold;
+        }
+
+        /* ── Winter Void: header ── */
+        html.winter-void header {
+            background: var(--wv-void) !important;
+            border-bottom: 1px solid rgba(164,159,157,0.1) !important;
+        }
+        html.winter-void header h1 { color: var(--wv-snow) !important; font-family: 'Cormorant Garamond', Georgia, serif !important; }
+        html.winter-void #connBadge {
+            background: rgba(61,60,56,0.5) !important;
+            border-color: rgba(164,159,157,0.18) !important;
+            color: var(--wv-equil) !important;
+        }
+        html.winter-void #connDot { background: var(--wv-win) !important; }
+        html.winter-void #connText { color: var(--wv-equil) !important; }
+
+        /* date picker & header buttons */
+        html.winter-void #globalDate { color: var(--wv-equil) !important; }
+        html.winter-void .input-field[type="date"] { color-scheme: dark; }
+
+        /* ── Winter Void: main area ── */
+        html.winter-void main {
+            background: rgba(16,18,18,0.95) !important;
+        }
+
+        /* ── Winter Void: cards ── */
+        html.winter-void .card {
+            background: var(--wv-card) !important;
+            border: 1px solid var(--wv-border) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+        }
+        html.winter-void .card:hover {
+            box-shadow: 0 16px 48px rgba(0,0,0,0.65) !important;
+        }
+
+        /* card top accent */
+        html.winter-void #noteSection {
+            border-top: 3px solid var(--wv-iridium) !important;
+        }
+        html.winter-void #formSection .card {
+            border-top: 3px solid var(--wv-falu) !important;
+        }
+
+        /* ── Winter Void: input fields ── */
+        html.winter-void .input-field {
+            background: rgba(12,14,14,0.75) !important;
+            border-color: var(--wv-border) !important;
+            color: var(--wv-snow) !important;
+        }
+        html.winter-void .input-field:focus {
+            border-color: rgba(164,159,157,0.35) !important;
+            box-shadow: 0 0 0 2px rgba(127,29,26,0.15) !important;
+        }
+
+        /* ── Winter Void: buttons ── */
+        html.winter-void .btn-primary {
+            background: var(--wv-falu) !important;
+            color: var(--wv-snow) !important;
+            border-radius: 8px;
+        }
+        html.winter-void .btn-primary:hover { background: var(--wv-falu-mid) !important; }
+        html.winter-void .btn-warning {
+            background: var(--wv-iridium) !important;
+            color: var(--wv-snow) !important;
+        }
+
+        /* select buttons */
+        html.winter-void .select-btn.inactive {
+            background: rgba(61,60,56,0.4) !important;
+            color: var(--wv-artillery) !important;
+            border-color: var(--wv-border) !important;
+        }
+        html.winter-void .select-btn.inactive:hover {
+            background: rgba(61,60,56,0.7) !important;
+            color: var(--wv-equil) !important;
+        }
+
+        /* ── Winter Void: text overrides ── */
+        html.winter-void .text-gray-800,
+        html.winter-void .dark\:text-white,
+        html.winter-void .dark\:text-slate-100 { color: var(--wv-snow) !important; }
+        html.winter-void .text-gray-600,
+        html.winter-void .text-gray-700,
+        html.winter-void .dark\:text-gray-300 { color: var(--wv-equil) !important; }
+        html.winter-void .text-gray-500,
+        html.winter-void .text-gray-400,
+        html.winter-void .dark\:text-gray-400 { color: var(--wv-artillery) !important; }
+
+        /* ── Winter Void: accent colours ── */
+        html.winter-void .text-blue-600,
+        html.winter-void .dark\:text-blue-400 { color: var(--wv-equil) !important; }
+        html.winter-void .bg-blue-600 { background: var(--wv-falu) !important; }
+        html.winter-void .hover\:bg-blue-700:hover { background: var(--wv-falu-mid) !important; }
+
+        /* keep profit green / loss red */
+        html.winter-void .text-green-600,
+        html.winter-void .dark\:text-green-400 { color: #6aaa6a !important; }
+        html.winter-void .text-red-600,
+        html.winter-void .dark\:text-red-400   { color: #c46060 !important; }
+        html.winter-void .bg-green-100,
+        html.winter-void .dark\:bg-green-900\/20 { background: rgba(90,138,90,0.1) !important; }
+        html.winter-void .bg-red-100,
+        html.winter-void .dark\:bg-red-900\/20   { background: rgba(127,29,26,0.12) !important; }
+
+        /* ── Winter Void: table ── */
+        html.winter-void #historyTable thead th {
+            background: rgba(28,26,24,0.9) !important;
+            color: var(--wv-artillery) !important;
+            border-bottom: 1px solid var(--wv-border) !important;
+        }
+        html.winter-void #historyTable tbody tr:hover td {
+            background: rgba(164,159,157,0.03) !important;
+        }
+        html.winter-void #historyTable tbody td {
+            color: var(--wv-snow) !important;
+            border-bottom: 1px solid rgba(164,159,157,0.05) !important;
+        }
+
+        /* ── Winter Void: calendar ── */
+        html.winter-void .cal-day {
+            background: rgba(61,60,56,0.3) !important;
+            border-color: transparent !important;
+        }
+        html.winter-void .cal-day.today { border-color: var(--wv-equil) !important; }
+        html.winter-void .cal-day.has-trades.profit {
+            background: rgba(90,138,90,0.1) !important;
+            border-color: rgba(90,138,90,0.28) !important;
+        }
+        html.winter-void .cal-day.has-trades.loss {
+            background: rgba(127,29,26,0.1) !important;
+            border-color: rgba(127,29,26,0.3) !important;
+        }
+
+        /* ── Winter Void: weekly strip ── */
+        html.winter-void #weeklyCalendar > div {
+            background: rgba(61,60,56,0.35) !important;
+            border: 1px solid rgba(164,159,157,0.08) !important;
+        }
+
+        /* ── Winter Void: playbook cards ── */
+        html.winter-void .playbook-card {
+            background: var(--wv-card) !important;
+            border-color: var(--wv-border) !important;
+        }
+        html.winter-void .playbook-card:hover {
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important;
+        }
+
+        /* ── Winter Void: modals ── */
+        html.winter-void #settingsModal > div,
+        html.winter-void #deleteModal > div,
+        html.winter-void #importModal > div {
+            background: #1c1a18 !important;
+            border-color: var(--wv-border) !important;
+            color: var(--wv-snow) !important;
+        }
+        html.winter-void #setupScreen {
+            background: rgba(10,12,12,0.97) !important;
+        }
+        html.winter-void #setupScreen > div {
+            background: #1c1a18 !important;
+            border-color: var(--wv-border) !important;
+        }
+        html.winter-void #imageModal {
+            background: rgba(10,12,12,0.97) !important;
+        }
+
+        /* ── Winter Void: toast ── */
+        html.winter-void .toast-success {
+            background: #1a2e1a !important; color: #6aaa6a !important;
+            border-color: rgba(90,138,90,0.35) !important;
+        }
+        html.winter-void .toast-error {
+            background: #2a1010 !important; color: #c46060 !important;
+            border-color: rgba(127,29,26,0.4) !important;
+        }
+        html.winter-void .toast-info {
+            background: #1c1a18 !important; color: var(--wv-equil) !important;
+            border-color: var(--wv-border-mid) !important;
+        }
+        html.winter-void .toast-warning {
+            background: #2a1c10 !important; color: #c49060 !important;
+            border-color: rgba(164,120,60,0.4) !important;
+        }
+
+        /* ── Winter Void: star rating ── */
+        html.winter-void .star.active { color: var(--wv-falu) !important; }
+        html.winter-void .star        { color: rgba(164,159,157,0.2) !important; }
+
+        /* ── Winter Void: note toolbar ── */
+        html.winter-void .note-toolbar-bottom { border-color: var(--wv-border) !important; }
+
+        /* ── Winter Void: scrollbar ── */
+        html.winter-void ::-webkit-scrollbar-thumb { background: rgba(164,159,157,0.2) !important; }
+
+        /* ── Winter Void: clock ── */
+        html.winter-void #clockFace { fill: #1c1a18 !important; stroke: rgba(164,159,157,0.2) !important; }
+        html.winter-void .clock-hand-hour { stroke: var(--wv-snow) !important; }
+        html.winter-void .clock-tick-major { stroke: var(--wv-artillery) !important; }
+
+        /* ── Winter Void: border overrides ── */
+        html.winter-void .dark\:border-slate-700 { border-color: var(--wv-border) !important; }
+        html.winter-void .dark\:bg-slate-800      { background: var(--wv-card) !important; }
+        html.winter-void .dark\:bg-slate-900      { background: rgba(12,14,14,0.8) !important; }
+
+        /* progress bar */
+        html.winter-void .progress-bar-fill {
+            background: linear-gradient(90deg, var(--wv-falu), var(--wv-iridium)) !important;
+        }
         .input-field { width: 100%; padding: 10px; border-radius: 8px; outline: none; transition: 0.2s; border: 1px solid #d1d5db; background-color: #f9fafb; color: #1f2937; }
         .dark .input-field { border-color: #334155; background-color: #0f172a; color: #f1f5f9; }
         .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
@@ -169,6 +451,78 @@
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
 
+<!-- ══ WINTER VOID: Pine BG + Snow (hidden when not active) ══ -->
+<div id="wvBgCanvas" style="display:none;">
+  <svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="1400" height="900" fill="#0d0f0f"/>
+    <ellipse cx="300" cy="750" rx="500" ry="300" fill="#1a1c1c" opacity="0.6"/>
+    <ellipse cx="1100" cy="720" rx="450" ry="280" fill="#181a1a" opacity="0.5"/>
+    <ellipse cx="700" cy="800" rx="400" ry="200" fill="#161818" opacity="0.7"/>
+    <!-- Left tall pine -->
+    <rect x="82" y="250" width="10" height="650" fill="#0e1010" rx="3"/>
+    <polygon points="87,30  30,200  144,200"  fill="#151818" opacity="0.95"/>
+    <polygon points="87,80  22,265  152,265"  fill="#181c1c" opacity="0.9"/>
+    <polygon points="87,140 15,330  159,330"  fill="#1a1e1e" opacity="0.88"/>
+    <polygon points="87,200 10,395  164,395"  fill="#151818" opacity="0.85"/>
+    <polygon points="87,260  5,460  169,460"  fill="#181c1c" opacity="0.8"/>
+    <polygon points="87,320  2,520  172,520"  fill="#1a1e1e" opacity="0.75"/>
+    <!-- Snow caps left -->
+    <polygon points="87,32  46,185  128,185"  fill="rgba(232,230,226,0.07)"/>
+    <polygon points="87,84  36,248  138,248"  fill="rgba(232,230,226,0.055)"/>
+    <polygon points="87,144 28,312  146,312"  fill="rgba(232,230,226,0.04)"/>
+    <polygon points="87,202 22,375  152,375"  fill="rgba(232,230,226,0.03)"/>
+    <!-- Right tall pine -->
+    <rect x="1308" y="230" width="11" height="670" fill="#0e1010" rx="3"/>
+    <polygon points="1313,20  1255,195  1371,195" fill="#151818" opacity="0.95"/>
+    <polygon points="1313,70  1248,260  1378,260" fill="#181c1c" opacity="0.9"/>
+    <polygon points="1313,130 1240,325  1386,325" fill="#1a1e1e" opacity="0.88"/>
+    <polygon points="1313,190 1235,390  1391,390" fill="#151818" opacity="0.85"/>
+    <polygon points="1313,250 1230,455  1396,455" fill="#181c1c" opacity="0.8"/>
+    <polygon points="1313,310 1226,518  1400,518" fill="#1a1e1e" opacity="0.75"/>
+    <!-- Snow caps right -->
+    <polygon points="1313,22  1268,178  1358,178" fill="rgba(232,230,226,0.07)"/>
+    <polygon points="1313,72  1260,244  1366,244" fill="rgba(232,230,226,0.055)"/>
+    <polygon points="1313,132 1252,308  1374,308" fill="rgba(232,230,226,0.04)"/>
+    <polygon points="1313,192 1246,373  1380,373" fill="rgba(232,230,226,0.03)"/>
+    <!-- Mid pines -->
+    <rect x="220" y="320" width="7" height="580" fill="#0e1010" rx="2"/>
+    <polygon points="223,120 178,295  268,295" fill="#161818" opacity="0.8"/>
+    <polygon points="223,175 170,360  276,360" fill="#191b1b" opacity="0.75"/>
+    <polygon points="223,240 163,425  283,425" fill="#161818" opacity="0.7"/>
+    <polygon points="223,122 188,278  258,278" fill="rgba(232,230,226,0.05)"/>
+    <rect x="1168" y="300" width="8" height="600" fill="#0e1010" rx="2"/>
+    <polygon points="1172,100 1126,278  1218,278" fill="#161818" opacity="0.8"/>
+    <polygon points="1172,155 1119,343  1225,343" fill="#191b1b" opacity="0.75"/>
+    <polygon points="1172,215 1112,408  1232,408" fill="#161818" opacity="0.7"/>
+    <polygon points="1172,102 1136,261  1208,261" fill="rgba(232,230,226,0.05)"/>
+    <!-- Center thin branches -->
+    <line x1="560" y1="0"   x2="548" y2="140" stroke="#1a1c1c" stroke-width="5" opacity="0.7"/>
+    <line x1="548" y1="55"  x2="510" y2="100" stroke="#1a1c1c" stroke-width="2.5" opacity="0.6"/>
+    <line x1="548" y1="80"  x2="590" y2="120" stroke="#1a1c1c" stroke-width="2"   opacity="0.55"/>
+    <circle cx="510" cy="100" r="2.5" fill="#e8e6e2" opacity="0.18"/>
+    <circle cx="590" cy="120" r="2"   fill="#e8e6e2" opacity="0.15"/>
+    <line x1="840" y1="0"   x2="852" y2="120" stroke="#1a1c1c" stroke-width="4" opacity="0.65"/>
+    <line x1="852" y1="45"  x2="880" y2="88"  stroke="#1a1c1c" stroke-width="2"   opacity="0.55"/>
+    <line x1="852" y1="65"  x2="822" y2="104" stroke="#1a1c1c" stroke-width="2"   opacity="0.5"/>
+    <circle cx="880" cy="88"  r="2" fill="#e8e6e2" opacity="0.15"/>
+    <!-- Falu Red ribbon bottom -->
+    <path d="M0,820 Q200,790 400,810 Q600,830 800,800 Q1000,770 1200,795 Q1350,810 1400,800" stroke="#7F1D1A" stroke-width="18" fill="none" opacity="0.28" stroke-linecap="round"/>
+    <path d="M0,834 Q200,808 420,826 Q620,844 840,816 Q1040,790 1240,812 Q1360,824 1400,816" stroke="#9a2420" stroke-width="8"  fill="none" opacity="0.16" stroke-linecap="round"/>
+    <!-- Static snow dots -->
+    <circle cx="180"  cy="160" r="1.5" fill="#e8e6e2" opacity="0.3"/>
+    <circle cx="340"  cy="80"  r="1"   fill="#e8e6e2" opacity="0.28"/>
+    <circle cx="500"  cy="200" r="1.5" fill="#e8e6e2" opacity="0.22"/>
+    <circle cx="680"  cy="50"  r="2"   fill="#e8e6e2" opacity="0.28"/>
+    <circle cx="820"  cy="170" r="1"   fill="#e8e6e2" opacity="0.25"/>
+    <circle cx="960"  cy="90"  r="1.5" fill="#e8e6e2" opacity="0.28"/>
+    <circle cx="1100" cy="200" r="1"   fill="#e8e6e2" opacity="0.22"/>
+    <circle cx="1240" cy="140" r="2"   fill="#e8e6e2" opacity="0.28"/>
+    <!-- Dark overlay -->
+    <rect width="1400" height="900" fill="rgba(10,12,12,0.55)"/>
+  </svg>
+</div>
+<div id="wvSnowContainer"></div>
+
 <!-- Toast Container -->
 <div id="toastContainer"></div>
 
@@ -247,7 +601,7 @@
         <div class="flex items-center gap-3">
             <button onclick="toggleSidebar()" class="lg:hidden text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 p-2 rounded-lg transition text-xl">☰</button>
             <h1 class="text-xl font-bold text-gray-800 dark:text-white hidden sm:block" data-i18n="appTitle">Trading Dashboard</h1>
-            <span class="hidden sm:inline text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800">v13</span>
+            <span class="hidden sm:inline text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800">v15</span>
         </div>
         <div class="flex items-center gap-2 md:gap-3">
             <!-- Connection Badge -->
@@ -694,9 +1048,12 @@
         </div>
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2" data-i18n="themeLabel">Theme</label>
-            <div class="flex gap-2">
+            <div class="flex gap-2 mb-2">
                 <button onclick="setTheme('light')" id="themeLightBtn" class="flex-1 py-2 border rounded-lg font-medium text-sm transition">☀️ Light</button>
                 <button onclick="setTheme('dark')" id="themeDarkBtn" class="flex-1 py-2 border rounded-lg font-medium text-sm transition">🌙 Dark</button>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="setTheme('winter-void')" id="themeWinterVoidBtn" class="flex-1 py-2.5 border rounded-lg font-medium text-sm transition flex items-center justify-center gap-1.5">❄️ Winter Void</button>
             </div>
         </div>
         <div class="mb-4">
@@ -1150,17 +1507,72 @@ function setFontSize(size, save=true) {
 }
 
 function setTheme(theme, save=true) {
-    const html=document.documentElement;
-    if(theme==='dark'){
+    const html = document.documentElement;
+    const activeClass   = "flex-1 py-2 border rounded-lg font-medium text-sm transition border-blue-500 bg-blue-900/30 text-blue-300";
+    const inactiveClass = "flex-1 py-2 border rounded-lg font-medium text-sm transition border-gray-300 bg-white text-gray-600 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-300 hover:bg-gray-50";
+    const wvActiveClass = "flex-1 py-2.5 border rounded-lg font-medium text-sm transition flex items-center justify-center gap-1.5 border-slate-500 bg-slate-900 text-slate-200";
+    const wvInactClass  = "flex-1 py-2.5 border rounded-lg font-medium text-sm transition flex items-center justify-center gap-1.5 border-gray-300 bg-white text-gray-600 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-300 hover:bg-gray-50";
+
+    // reset all buttons
+    document.getElementById('themeLightBtn').className     = inactiveClass;
+    document.getElementById('themeDarkBtn').className      = inactiveClass;
+    document.getElementById('themeWinterVoidBtn').className = wvInactClass;
+
+    // clear winter-void class first
+    html.classList.remove('winter-void');
+
+    const wvBg    = document.getElementById('wvBgCanvas');
+    const wvSnow  = document.getElementById('wvSnowContainer');
+
+    if (theme === 'dark') {
         html.classList.add('dark');
-        document.getElementById('themeDarkBtn').className="flex-1 py-2 border rounded-lg font-medium text-sm transition border-blue-500 bg-blue-900/30 text-blue-300";
-        document.getElementById('themeLightBtn').className="flex-1 py-2 border rounded-lg font-medium text-sm transition border-gray-300 bg-white text-gray-600 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-300 hover:bg-gray-50";
+        document.getElementById('themeDarkBtn').className = activeClass;
+        if (wvBg) wvBg.style.display = 'none';
+        _stopWvSnow();
+    } else if (theme === 'winter-void') {
+        html.classList.add('dark');
+        html.classList.add('winter-void');
+        document.getElementById('themeWinterVoidBtn').className = wvActiveClass;
+        if (wvBg) wvBg.style.display = 'block';
+        _startWvSnow();
     } else {
+        // light
         html.classList.remove('dark');
-        document.getElementById('themeLightBtn').className="flex-1 py-2 border rounded-lg font-medium text-sm transition border-blue-500 bg-blue-50 text-blue-700";
-        document.getElementById('themeDarkBtn').className="flex-1 py-2 border rounded-lg font-medium text-sm transition border-gray-300 bg-white text-gray-600 hover:bg-gray-50";
+        document.getElementById('themeLightBtn').className = "flex-1 py-2 border rounded-lg font-medium text-sm transition border-blue-500 bg-blue-50 text-blue-700";
+        if (wvBg) wvBg.style.display = 'none';
+        _stopWvSnow();
     }
-    if(save) saveSettings('theme',theme);
+    if (save) saveSettings('theme', theme);
+}
+
+/* ── Winter Void snow helpers ── */
+let _wvSnowInterval = null;
+function _startWvSnow() {
+    const c = document.getElementById('wvSnowContainer');
+    if (!c || _wvSnowInterval) return;
+    // Seed initial flakes
+    for (let i = 0; i < 35; i++) _spawnFlake(c, true);
+    _wvSnowInterval = setInterval(() => { if (c) _spawnFlake(c, false); }, 600);
+}
+function _stopWvSnow() {
+    clearInterval(_wvSnowInterval);
+    _wvSnowInterval = null;
+    const c = document.getElementById('wvSnowContainer');
+    if (c) c.innerHTML = '';
+}
+function _spawnFlake(container, immediate) {
+    const chars = ['·', '•', '*', '+'];
+    const f = document.createElement('div');
+    f.className = 'wv-snowflake';
+    f.textContent = chars[Math.floor(Math.random() * chars.length)];
+    const size     = (Math.random() * 0.7 + 0.5).toFixed(2);
+    const left     = (Math.random() * 100).toFixed(1);
+    const duration = (Math.random() * 12 + 9).toFixed(1);
+    const delay    = immediate ? -(Math.random() * parseFloat(duration)).toFixed(1) : '0';
+    f.style.cssText = `left:${left}%;font-size:${size}em;animation-duration:${duration}s;animation-delay:${delay}s;color:rgba(232,230,226,${(Math.random()*0.4+0.15).toFixed(2)});`;
+    container.appendChild(f);
+    // remove after animation completes
+    setTimeout(() => f.remove(), (parseFloat(duration) + Math.abs(parseFloat(delay))) * 1000 + 500);
 }
 
 function setLayout(layout, save=true) {
