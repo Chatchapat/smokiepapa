@@ -1072,6 +1072,9 @@ function setLang(lang, save=true) {
     document.getElementById('tpModeBtn').innerText = inputModeTP==='pts'?i18nDict[lang].modePts:i18nDict[lang].modePrice;
     const btn=document.getElementById('saveBtn');
     if(editingId) btn.innerText=i18nDict[lang].updateOrderBtn; else btn.innerText=i18nDict[lang].saveOrderBtn;
+    // Update cancel button text if visible
+    const cb=document.getElementById('cancelEditBtn');
+    if(cb && !cb.classList.contains('hidden')) cb.innerText=i18nDict[lang].cancelBtn;
 
     const isTH = lang === 'th';
 
@@ -1231,24 +1234,38 @@ function getSessionString(timeStr) {
     // SYD: 05:00-14:00 (300-840 mins)
     // TOK: 07:00-16:00 (420-960 mins)
     // LON: 14:00-23:00 (840-1380 mins)
-    // NY:  19:00-04:00 (1140+ or <240 mins)
-    // When sessions overlap, use most recently opened session
+    // NY:  19:00-04:00 (1140-1440 or 0-240 mins)
     if (!timeStr || timeStr==='-') return '-';
     const [h,m] = timeStr.split(':').map(Number);
     const mins = h*60+(m||0);
-    // NY: 19:00-04:00 (highest priority - latest opening)
-    if (mins>=1140 || mins<240) return 'NY';
-    // LON: 14:00-23:00
-    if (mins>=840) return 'LON';
-    // TOK: 07:00-16:00 (overlaps with SYD 07:00-14:00)
-    if (mins>=420) return 'TOK';
-    // SYD: 05:00-07:00 (only pure SYD time)
-    if (mins>=300) return 'SYD';
-    return '-';
+    // NY overnight: 00:00-04:00
+    if (mins < 240) return 'NY';
+    // Dead zone: 04:00-05:00
+    if (mins < 300) return '-';
+    // SYD only: 05:00-07:00
+    if (mins < 420) return 'SYD';
+    // SYD+TOK overlap: 07:00-14:00
+    if (mins < 840) return 'SYD/TOK';
+    // TOK+LON overlap: 14:00-16:00
+    if (mins < 960) return 'TOK/LON';
+    // LON only: 16:00-19:00
+    if (mins < 1140) return 'LON';
+    // LON+NY overlap: 19:00-23:00
+    if (mins < 1380) return 'LON/NY';
+    // NY only: 23:00-24:00
+    return 'NY';
 }
 
 function getSessionColor(s) {
-    const map = {NY:'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700', LON:'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700', TOK:'bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-700', SYD:'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700'};
+    const map = {
+        'NY':      'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700',
+        'LON':     'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700',
+        'LON/NY':  'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700',
+        'TOK/LON': 'bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-700',
+        'SYD/TOK': 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700',
+        'SYD':     'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700',
+        'TOK':     'bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-700',
+    };
     return map[s]||'bg-gray-100 text-gray-500 border-gray-300';
 }
 
@@ -1527,7 +1544,7 @@ async function editTrade(id) {
     sb.className='btn-warning py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase';
     const cb=document.getElementById('cancelEditBtn');
     cb.classList.remove('hidden');
-    cb.innerText=currentLang==='th'?'✕ ยกเลิก':'✕ Cancel';
+    cb.innerText=i18nDict[currentLang].cancelBtn;
     document.getElementById('formSection').scrollIntoView({behavior:'smooth'});
 }
 
