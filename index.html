@@ -294,8 +294,25 @@
         /* ── Winter Void: scrollbar ── */
         html.winter-void ::-webkit-scrollbar-thumb { background: rgba(164,159,157,0.2) !important; }
 
-        /* ── Winter Void: clock ── */
-        html.winter-void #clockFace { fill: #1c1a18 !important; stroke: rgba(164,159,157,0.2) !important; }
+        /* ── Winter Void: clock widget bg ── */
+        html.winter-void .bg-slate-100,
+        html.winter-void .dark\:bg-slate-800\/60 {
+            background: rgba(36,30,26,0.7) !important;
+            border-color: rgba(164,159,157,0.12) !important;
+        }
+        html.winter-void #sessSyd,
+        html.winter-void #sessTok,
+        html.winter-void #sessLon,
+        html.winter-void #sessNy {
+            background: rgba(36,30,26,0.5) !important;
+        }
+
+        /* ── Winter Void: note image attachment area ── */
+        html.winter-void .dark\:bg-slate-800\/50,
+        html.winter-void .border-dashed.dark\:border-slate-600 {
+            background: rgba(36,30,26,0.6) !important;
+            border-color: rgba(164,159,157,0.2) !important;
+        }
         html.winter-void .clock-hand-hour { stroke: var(--wv-snow) !important; }
         html.winter-void .clock-tick-major { stroke: var(--wv-artillery) !important; }
 
@@ -308,6 +325,24 @@
         html.winter-void .progress-bar-fill {
             background: linear-gradient(90deg, var(--wv-falu), var(--wv-iridium)) !important;
         }
+
+        /* ── Winter Void: snow toggle button ── */
+        html.winter-void #snowToggleBtn {
+            background: rgba(36,30,26,0.75) !important;
+            border-color: rgba(164,159,157,0.25) !important;
+            color: var(--wv-snow) !important;
+        }
+        html.winter-void #snowToggleBtn:hover {
+            background: rgba(127,29,26,0.4) !important;
+        }
+
+        /* ── Raise all overlays above wvBgCanvas in winter void ── */
+        html.winter-void #settingsModal { z-index: 9999 !important; }
+        html.winter-void #deleteModal   { z-index: 9999 !important; }
+        html.winter-void #importModal   { z-index: 9999 !important; }
+        html.winter-void #imageModal    { z-index: 9999 !important; }
+        html.winter-void #setupScreen   { z-index: 9999 !important; }
+        html.winter-void #mobileOverlay { z-index: 9997 !important; }
         .input-field { width: 100%; padding: 10px; border-radius: 8px; outline: none; transition: 0.2s; border: 1px solid #d1d5db; background-color: #f9fafb; color: #1f2937; }
         .dark .input-field { border-color: #334155; background-color: #0f172a; color: #f1f5f9; }
         .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
@@ -622,6 +657,7 @@
             </div>
             <div id="dashboardControls" class="flex items-center gap-2">
                 <button onclick="loadPageData()" class="p-2 w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-lg transition border border-blue-200 dark:border-blue-800 shadow-sm shrink-0" title="Refresh">🔄</button>
+                <button onclick="toggleSnow()" id="snowToggleBtn" class="p-2 w-10 h-10 hidden items-center justify-center rounded-lg transition border shadow-sm shrink-0 bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700" title="เปิด/ปิด หิมะตก" style="display:none;">❄️</button>
                 <div class="flex items-center bg-gray-100 dark:bg-slate-900 p-1.5 rounded-lg border border-gray-200 dark:border-slate-600 shadow-inner">
                     <button onclick="changeDate(-1)" class="hover:bg-white dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded shadow-sm font-bold transition">◀</button>
                     <div class="flex items-center px-2 md:px-3">
@@ -731,7 +767,7 @@
                         </div>
                         <div class="mt-4 flex justify-center gap-3">
                             <button id="saveNoteBtn" onclick="saveDailyNote()" class="btn-primary font-bold py-2.5 px-8 rounded-xl shadow-md text-sm">💾 บันทึก Note</button>
-                            <button id="editNoteBtn" onclick="editDailyNote()" class="hidden bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-bold py-2.5 px-8 rounded-xl border border-gray-300 dark:border-slate-500 text-sm">✏️ แก้ไข Note</button>
+                            <button id="editNoteBtn" onclick="editDailyNote()" class="hidden bg-red-700 hover:bg-red-600 text-white font-bold py-2.5 px-8 rounded-xl border border-red-500 text-sm">✏️ แก้ไข Note</button>
                         </div>
                     </div>
                                         <!-- History Table -->
@@ -1036,7 +1072,7 @@
 </div>
 
 <!-- ══ SETTINGS MODAL ══ -->
-<div id="settingsModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm">
+<div id="settingsModal" class="fixed inset-0 bg-black/60 hidden z-[200] flex items-center justify-center backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-sm max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="settingsTitle">⚙️ Settings</h2>
@@ -1535,22 +1571,33 @@ function setTheme(theme, save=true) {
     const wvBg    = document.getElementById('wvBgCanvas');
     const wvSnow  = document.getElementById('wvSnowContainer');
 
+    const snowBtn = document.getElementById('snowToggleBtn');
+
     if (theme === 'dark') {
         html.classList.add('dark');
         document.getElementById('themeDarkBtn').className = activeClass;
-        if (wvBg) wvBg.style.display = 'none';
+        if (wvBg)    wvBg.style.display = 'none';
+        if (snowBtn) { snowBtn.style.display = 'none'; }
         _stopWvSnow();
     } else if (theme === 'winter-void') {
         html.classList.add('dark');
         html.classList.add('winter-void');
         document.getElementById('themeWinterVoidBtn').className = wvActiveClass;
         if (wvBg) wvBg.style.display = 'block';
+        if (snowBtn) {
+            snowBtn.style.display = 'flex';
+            snowBtn.style.opacity = '1';
+            snowBtn.textContent = '❄️';
+            snowBtn.title = 'ปิดหิมะตก';
+        }
+        _wvSnowEnabled = true;
         _startWvSnow();
     } else {
         // light
         html.classList.remove('dark');
         document.getElementById('themeLightBtn').className = "flex-1 py-2 border rounded-lg font-medium text-sm transition border-blue-500 bg-blue-50 text-blue-700";
-        if (wvBg) wvBg.style.display = 'none';
+        if (wvBg)    wvBg.style.display = 'none';
+        if (snowBtn) { snowBtn.style.display = 'none'; }
         _stopWvSnow();
     }
     if (save) saveSettings('theme', theme);
@@ -1558,6 +1605,19 @@ function setTheme(theme, save=true) {
 
 /* ── Winter Void snow helpers ── */
 let _wvSnowInterval = null;
+let _wvSnowEnabled  = true;   // tracks whether user has toggled snow off
+
+function toggleSnow() {
+    _wvSnowEnabled = !_wvSnowEnabled;
+    const btn = document.getElementById('snowToggleBtn');
+    if (_wvSnowEnabled) {
+        _startWvSnow();
+        if (btn) { btn.title = 'ปิดหิมะตก'; btn.style.opacity = '1'; btn.textContent = '❄️'; }
+    } else {
+        _stopWvSnow();
+        if (btn) { btn.title = 'เปิดหิมะตก'; btn.style.opacity = '0.4'; btn.textContent = '🌤️'; }
+    }
+}
 function _startWvSnow() {
     const c = document.getElementById('wvSnowContainer');
     if (!c || _wvSnowInterval) return;
