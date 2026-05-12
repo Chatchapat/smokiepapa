@@ -371,8 +371,7 @@
                             <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span data-i18n="historyTitle">Trade History (ประจำวัน)</span></h3>
                             <span id="dailyPnlSummary" class="text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400">Total P&L: $0.00</span>
                         </div>
-                        <div id="tradeCardsContainer" class="trade-cards p-3 space-y-3"></div>
-                        <div class="overflow-x-auto flex-1 trade-table">
+                        <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left text-sm" style="table-layout:fixed;word-break:break-word" id="historyTable">
                                 <thead class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide">
                                     <tr>
@@ -1219,17 +1218,22 @@ function updateSessionUI() {
 
 function getSessionString(timeStr) {
     // Session times in Thailand (UTC+7)
-    // SYD: 05:00-14:00 (300-840)
-    // TOK: 07:00-16:00 (420-960)
-    // LON: 14:00-23:00 (840-1380)
-    // NY:  19:00-04:00 (1140-1440 + 0-240)
+    // SYD: 05:00-14:00 (300-840 mins)
+    // TOK: 07:00-16:00 (420-960 mins)
+    // LON: 14:00-23:00 (840-1380 mins)
+    // NY:  19:00-04:00 (1140+ or <240 mins)
+    // When sessions overlap, use most recently opened session
     if (!timeStr || timeStr==='-') return '-';
     const [h,m] = timeStr.split(':').map(Number);
     const mins = h*60+(m||0);
+    // NY: 19:00-04:00 (highest priority - latest opening)
     if (mins>=1140 || mins<240) return 'NY';
-    if (mins>=840 && mins<1380) return 'LON';
-    if (mins>=420 && mins<960)  return 'TOK';
-    if (mins>=300 && mins<840)  return 'SYD';
+    // LON: 14:00-23:00
+    if (mins>=840) return 'LON';
+    // TOK: 07:00-16:00 (overlaps with SYD 07:00-14:00)
+    if (mins>=420) return 'TOK';
+    // SYD: 05:00-07:00 (only pure SYD time)
+    if (mins>=300) return 'SYD';
     return '-';
 }
 
@@ -1605,8 +1609,6 @@ async function renderHistory() {
     const s=document.getElementById('dailyPnlSummary');
     s.innerText=`Total P&L: ${total>0?'+':''}$${total.toFixed(2)}`;
     s.className=`text-sm font-bold px-3 py-1 rounded-lg border ${total>0?'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800':total<0?'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800':'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700'}`;
-    // Render mobile cards
-    renderTradeCards(hist);
 }
 
 async function moveTrade(id, dir) {
