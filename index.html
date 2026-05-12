@@ -209,27 +209,27 @@
 
 <!-- ══ SIDEBAR ══ -->
 <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-sm"></div>
-<aside id="sidebar" class="bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col fixed h-full z-50 transform -translate-x-full transition-all duration-300 w-56 shadow-2xl overflow-x-hidden" id="sidebar">
+<aside id="sidebar" class="bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col fixed lg:relative h-full z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300 w-56 lg:w-[72px] lg:hover:w-56 group shadow-2xl lg:shadow-none overflow-x-hidden" id="sidebar">
     <div class="w-64 flex-1 flex flex-col h-full">
         <div class="h-16 flex items-center px-5 border-b border-gray-200 dark:border-slate-700 shrink-0">
             <span class="text-xl font-bold text-blue-600 dark:text-blue-400 tracking-wide flex items-center">
                 <span class="mr-4 text-2xl drop-shadow-sm">📘</span>
-                <span class="">Journal</span>
+                <span class="transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">Journal</span>
             </span>
             <button onclick="toggleSidebar()" class="ml-auto lg:hidden text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white text-2xl mr-4">&times;</button>
         </div>
         <nav class="flex-1 py-4 flex flex-col gap-1 overflow-y-auto">
             <a onclick="switchPage('dashboard')" id="nav-dashboard" class="nav-item active px-4 py-3 flex items-center text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition cursor-pointer">
                 <span class="mr-4 text-xl shrink-0">📊</span>
-                <span class="whitespace-nowrap">Dashboard</span>
+                <span class="whitespace-nowrap transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">Dashboard</span>
             </a>
             <a onclick="switchPage('calendar')" id="nav-calendar" class="nav-item px-4 py-3 flex items-center text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition cursor-pointer">
                 <span class="mr-4 text-xl shrink-0">🗓️</span>
-                <span class="whitespace-nowrap">Calendar & Stats</span>
+                <span class="whitespace-nowrap transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">Calendar & Stats</span>
             </a>
             <a onclick="switchPage('playbook')" id="nav-playbook" class="nav-item px-4 py-3 flex items-center text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition cursor-pointer">
                 <span class="mr-4 text-xl shrink-0">📓</span>
-                <span class="whitespace-nowrap">Trade Playbook</span>
+                <span class="whitespace-nowrap transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">Trade Playbook</span>
             </a>
         </nav>
     </div>
@@ -283,7 +283,7 @@
                     <!-- Daily Note -->
                     <div class="card p-5 border-t-4 border-t-purple-500 dark:border-t-purple-700" id="noteSection">
                         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
-                            <span class="mr-2">📝</span>บันทึกก่อนเทรด & โครงสร้างตลาด
+                            <span class="mr-2">📝</span><span id="noteTitleText">บันทึกก่อนเทรด & โครงสร้างตลาด</span>
                         </h2>
                         <div id="dailyNote" contenteditable="true" data-placeholder="มุมมองตลาดวันนี้? (Ctrl+V วางรูปจาก TradingView ได้เลย)" class="input-field min-h-[150px] leading-relaxed text-sm mb-3"></div>
                         <!-- Toolbar (bottom) -->
@@ -368,7 +368,7 @@
                                         <!-- History Table -->
                     <div class="card overflow-hidden flex-1 flex flex-col">
                         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center">
-                            <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span data-i18n="historyTitle">Trade History (ประจำวัน)</span></h3>
+                            <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span data-i18n="historyTitle">บันทึกการเทรดประจำวัน</span></h3>
                             <span id="dailyPnlSummary" class="text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400">Total P&L: $0.00</span>
                         </div>
                         <div class="overflow-x-auto flex-1">
@@ -497,7 +497,7 @@
                                 <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="number" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="0" step="any"></div>
                                 <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1" data-i18n="ddLabel">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="จุด" step="any"></div>
                             </div>
-                            <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="remarkLabel">11. Remark</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
+                            <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="remarkLabel">11. บันทึกจุดสังเกต</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
                             <div class="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
                                 <label class="block text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1" data-i18n="confLabel">12. ความมั่นใจ & อารมณ์</label>
                                 <div class="flex items-center gap-1 mb-2" id="starRating">
@@ -511,7 +511,10 @@
                                 <div id="imagePreviewContainer" class="flex gap-2 mt-2 flex-wrap min-h-[40px] items-center bg-gray-100 dark:bg-slate-800/50 p-2 rounded border border-gray-300 dark:border-slate-700 border-dashed"></div>
                             </div>
                         </div>
-                        <div class="mt-6"><button id="saveBtn" onclick="saveTrade()" class="btn-primary py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase" data-i18n="saveOrderBtn">SAVE ORDER</button></div>
+                        <div class="mt-6 flex flex-col gap-2">
+                            <button id="saveBtn" onclick="saveTrade()" class="btn-primary py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase" data-i18n="saveOrderBtn">SAVE ORDER</button>
+                            <button id="cancelEditBtn" onclick="cancelEdit()" class="hidden bg-gray-500 hover:bg-gray-600 text-white py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase transition" data-i18n="cancelBtn">✕ ยกเลิก</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -767,13 +770,13 @@ const i18nDict = {
         menuDash:"Dashboard",menuCal:"Calendar & Stats (Soon)",menuPlan:"Trade Playbook (Soon)",
         noteTitle:"บันทึกก่อนเทรด & โครงสร้างตลาด",noteImageLabel:"ภาพประกอบบันทึก",pastePrompt:"กด Ctrl+V วางรูปได้",
         saveNoteBtn:"💾 บันทึก Note",editNoteBtn:"✏️ แก้ไข Note",
-        historyTitle:"Trade History (ประจำวัน)",totalPnl:"Total P&L: ",noData:"ไม่มีข้อมูลการเทรดสำหรับวันที่",
+        historyTitle:'บันทึกการเทรดประจำวัน',totalPnl:"Total P&L: ",noData:"ไม่มีข้อมูลการเทรดสำหรับวันที่",
         formTitle:"🎯 บันทึกออเดอร์",cancelBtn:"✕ ยกเลิก",timeLabel:"1. Time (In - Out)",nowBtn:"🕒 ตอนนี้",
         dirLabel:"2. Order Direction",resLabel:"3. Trade Result",setupLabel:"4. Trade Setup",
         entryLabel:"5. Entry Price",lotLabel:"6. Lot Size",slLabel:"7. SL",tpLabel:"8. TP",
         pnlLabel:"9. P&L ($)",ddLabel:"10. Drawdown (Pts)",
-        remarkLabel:"11. Remark / สังเกตการณ์",confLabel:"12. ความมั่นใจ & อารมณ์",imgLabel:"13. ภาพกราฟ (Ctrl+V วางรูปได้)",
-        saveOrderBtn:"SAVE ORDER",updateOrderBtn:"UPDATE ORDER",
+        remarkLabel:'11. บันทึกจุดสังเกต',confLabel:"12. ความมั่นใจ & อารมณ์",imgLabel:"13. ภาพกราฟ (Ctrl+V วางรูปได้)",
+        saveOrderBtn:'SAVE ORDER',updateOrderBtn:'UPDATE ORDER',cancelBtn:'✕ Cancel',
         settingsTitle:"⚙️ Settings",dispSizeLabel:"Display Size (ขนาดจอ)",sizeSm:"เล็ก",sizeMd:"ปกติ",sizeLg:"ใหญ่",
         themeLabel:"Theme (ธีมสี)",layoutLabel:"Layout (การจัดวาง)",layoutRight:"ฟอร์มอยู่ขวา",layoutLeft:"ฟอร์มอยู่ซ้าย",
         langLabel:"Language (ภาษา)",closeSettings:"Close Settings",
@@ -785,13 +788,13 @@ const i18nDict = {
         menuDash:"Dashboard",menuCal:"Calendar & Stats (Soon)",menuPlan:"Trade Playbook (Soon)",
         noteTitle:"Pre-Trade Note & Market Structure",noteImageLabel:"Note Images",pastePrompt:"Press Ctrl+V to paste image",
         saveNoteBtn:"💾 Save Note",editNoteBtn:"✏️ Edit Note",
-        historyTitle:"Daily Trade History",totalPnl:"Total P&L: ",noData:"No trade data for",
+        historyTitle:'Trade History',totalPnl:"Total P&L: ",noData:"No trade data for",
         formTitle:"🎯 Order Entry",cancelBtn:"✕ Cancel",timeLabel:"1. Time (In - Out)",nowBtn:"🕒 Now",
         dirLabel:"2. Order Direction",resLabel:"3. Trade Result",setupLabel:"4. Trade Setup",
         entryLabel:"5. Entry Price",lotLabel:"6. Lot Size",slLabel:"7. SL",tpLabel:"8. TP",
         pnlLabel:"9. P&L ($)",ddLabel:"10. Drawdown (Pts)",
-        remarkLabel:"11. Remark / Observation",confLabel:"12. Confidence & Emotion",imgLabel:"13. Chart Image (Ctrl+V to paste)",
-        saveOrderBtn:"SAVE ORDER",updateOrderBtn:"UPDATE ORDER",
+        remarkLabel:'11. Remark',confLabel:"12. Confidence & Emotion",imgLabel:"13. Chart Image (Ctrl+V to paste)",
+        saveOrderBtn:'บันทึกออเดอร์',updateOrderBtn:'อัปเดตออเดอร์',cancelBtn:'✕ ยกเลิก',
         settingsTitle:"⚙️ Settings",dispSizeLabel:"Display Size",sizeSm:"Small",sizeMd:"Normal",sizeLg:"Large",
         themeLabel:"Theme",layoutLabel:"Layout",layoutRight:"Form on Right",layoutLeft:"Form on Left",
         langLabel:"Language",closeSettings:"Close Settings",
@@ -977,6 +980,8 @@ window.onload = async function() {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('mobileOverlay');
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop) return; // Desktop: sidebar always visible
     const isOpen = !sidebar.classList.contains('-translate-x-full');
     if (isOpen) {
         sidebar.classList.add('-translate-x-full');
@@ -1083,8 +1088,8 @@ function setLang(lang, save=true) {
     }
 
     // Note section
-    const noteTitle = document.querySelector('#noteSection h2 span:last-child');
-    if (noteTitle) noteTitle.textContent = isTH ? 'บันทึกก่อนเทรด & โครงสร้างตลาด' : 'Pre-Trade Note & Market Structure';
+    const noteTitleEl = document.getElementById('noteTitleText');
+    if (noteTitleEl) noteTitleEl.textContent = isTH ? 'บันทึกก่อนเทรด & โครงสร้างตลาด' : 'Pre-Trade Note & Market Structure';
     const snb=document.getElementById('saveNoteBtn');
     const enb=document.getElementById('editNoteBtn');
     if (snb) snb.innerHTML = isTH ? '💾 บันทึก Note' : '💾 Save Note';
@@ -1109,7 +1114,7 @@ function setLang(lang, save=true) {
 
     // History title
     const ht = document.querySelector('[data-i18n="historyTitle"]');
-    if (ht) ht.innerHTML = isTH ? 'Trade History (ประจำวัน)' : 'Daily Trade History';
+    if (ht) ht.innerHTML = isTH ? 'บันทึกการเทรดประจำวัน' : 'Trade History';
 
     // Weekly performance
     const wp = document.querySelector('[data-i18n="weeklyPerf"]');
@@ -1122,6 +1127,8 @@ function setLang(lang, save=true) {
     // DD label
     const ddLbl = document.querySelector('label[data-i18n="ddLabel"]');
     if (ddLbl) ddLbl.textContent = isTH ? '10. Drawdown (Pts)' : '10. Drawdown (Pts)';
+    const remLbl = document.querySelector('label[data-i18n="remarkLabel"]');
+    if (remLbl) remLbl.textContent = isTH ? '11. บันทึกจุดสังเกต' : '11. Remark';
 
     if(save) saveSettings('lang',lang);
 }
@@ -1515,7 +1522,9 @@ async function editTrade(id) {
     const sb=document.getElementById('saveBtn');
     sb.innerText=i18nDict[currentLang].updateOrderBtn;
     sb.className='btn-warning py-3 px-10 w-full rounded-lg font-bold text-sm shadow-lg tracking-wide uppercase';
-    document.getElementById('cancelEditBtn').classList.remove('hidden');
+    const cb=document.getElementById('cancelEditBtn');
+    cb.classList.remove('hidden');
+    cb.innerText=currentLang==='th'?'✕ ยกเลิก':'✕ Cancel';
     document.getElementById('formSection').scrollIntoView({behavior:'smooth'});
 }
 
