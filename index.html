@@ -98,21 +98,30 @@
         .dark header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 
         /* ── Mobile Responsive ── */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .card { border-radius: 10px; }
             header { padding: 0 12px; }
             main { padding: 12px !important; }
             .select-btn { font-size: 10px !important; padding: 6px 4px !important; }
-            table { font-size: 11px; }
-            th, td { padding: 6px 4px !important; }
             #formSection { position: relative !important; top: 0 !important; }
+            /* Mobile table - show only key columns */
+            #historyTable { table-layout: auto !important; font-size: 11px; }
+            #historyTable th, #historyTable td { padding: 4px 3px !important; }
+            /* Hide less important columns on mobile */
+            #historyTable th:nth-child(6),
+            #historyTable td:nth-child(6),
+            #historyTable th:nth-child(8),
+            #historyTable td:nth-child(8) { display: none; }
+            /* Clock mobile - compact layout */
+            #clockWidget { width: 110px !important; height: 110px !important; }
+            .clock-right-panel { font-size: 11px !important; }
         }
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
         }
 
         /* ── Clock Widget ── */
-        #clockWidget { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+        #clockWidget { position: relative; width: 120px; height: 120px; flex-shrink: 0; } @media(min-width:400px){#clockWidget{width:145px;height:145px;}} @media(min-width:640px){#clockWidget{width:160px;height:160px;}}
         #clockWidget svg { width: 100%; height: 100%; }
         .clock-session-badge { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 
@@ -265,7 +274,7 @@
 
             <!-- Weekly Calendar -->
             <div class="mb-6">
-                <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 flex items-center">📅 <span class="ml-1">Weekly Performance (Cloud)</span></h3>
+                <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 flex items-center">📅 <span class="ml-1" data-i18n="weeklyPerf">Weekly Performance</span></h3>
                 <div id="weeklyCalendar" class="grid grid-cols-2 md:grid-cols-7 gap-3"></div>
             </div>
 
@@ -344,7 +353,7 @@
                         </div>
                         <div class="border border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-3 bg-gray-50 dark:bg-slate-800/50">
                             <div class="flex justify-between items-center mb-2">
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400">📷 ภาพประกอบ (<span id="noteImgCount">0</span>/10)</label>
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400" data-i18n="noteImageLabel">📷 ภาพประกอบ (<span id="noteImgCount">0</span>/10)</label>
                                 <input type="file" id="noteImageInput" multiple accept="image/*" class="text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-purple-100 file:text-purple-700 dark:file:bg-slate-700 dark:file:text-white cursor-pointer" onchange="handleFileInput(event, currentNoteImages, renderNoteImagePreviews)">
                             </div>
                             <div id="noteImagePreviewContainer" class="img-preview-grid min-h-[50px]">
@@ -362,8 +371,9 @@
                             <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span data-i18n="historyTitle">Trade History (ประจำวัน)</span></h3>
                             <span id="dailyPnlSummary" class="text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400">Total P&L: $0.00</span>
                         </div>
-                        <div class="overflow-x-auto flex-1">
-                            <table class="w-full text-left text-sm" style="table-layout:fixed;word-break:break-word">
+                        <div id="tradeCardsContainer" class="trade-cards p-3 space-y-3"></div>
+                        <div class="overflow-x-auto flex-1 trade-table">
+                            <table class="w-full text-left text-sm" style="table-layout:fixed;word-break:break-word" id="historyTable">
                                 <thead class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide">
                                     <tr>
                                         <th class="px-2 py-3 text-center" style="width:36px">#</th>
@@ -397,7 +407,7 @@
                                 </div>
                                 <!-- Clock Widget -->
                                 <div class="bg-slate-100 dark:bg-slate-800/60 rounded-xl p-3 mb-3 border border-gray-200 dark:border-slate-700">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                                         <div id="clockWidget" style="flex-shrink:0">
                                         <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" id="clockSvg">
                                             <circle id="clockFace" cx="60" cy="60" r="55" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
@@ -410,25 +420,25 @@
                                         </svg>
                                         </div>
                                         <!-- Right side: time + sessions -->
-                                        <div class="flex-1 min-w-0 text-left">
+                                        <div class="flex-1 min-w-0 text-left clock-right-panel" style="min-width:160px">
                                             <div id="clockTimeText" class="font-mono font-bold text-xl text-gray-900 dark:text-white mb-0.5 tabular-nums">00:00:00</div>
-                                            <div id="clockDateText" class="text-sm font-semibold text-gray-700 dark:text-white mb-1 leading-none"></div>
+                                            <div id="clockDateText" class="text-xs font-semibold text-gray-700 dark:text-white mb-1 leading-tight"></div>
                                             <div class="space-y-1" id="sessionBar">
-                                                <div id="sessSyd" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessSyd" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold w-[60px] sess-name" style="color:#f97316">Sydney</span>
-                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeSyd">5AM–2PM</span>
+                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeSyd">5AM–2PM</span>
                                                 </div>
-                                                <div id="sessTok" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessTok" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold w-[60px] sess-name" style="color:#ec4899">Tokyo</span>
-                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeTok">7AM–4PM</span>
+                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeTok">7AM–4PM</span>
                                                 </div>
-                                                <div id="sessLon" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessLon" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold w-[60px] sess-name" style="color:#3b82f6">London</span>
-                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeLon">2PM–11PM</span>
+                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeLon">2PM–11PM</span>
                                                 </div>
-                                                <div id="sessNy" class="flex items-center gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                <div id="sessNy" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold w-[60px] sess-name" style="color:#22c55e">New York</span>
-                                                    <span class="font-mono text-xs font-bold text-white w-[76px]" id="timeNy">7PM–4AM</span>
+                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeNy">7PM–4AM</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -436,11 +446,11 @@
                                     <!-- เวลาเข้า/ออก เป็นปุ่มกด -->
                                     <div class="mt-3 grid grid-cols-2 gap-2">
                                         <div class="flex flex-col gap-1">
-                                            <button onclick="setTimeInNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm">🕒 เวลาเข้า</button>
+                                            <button onclick="setTimeInNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm btn-time-in">🕒 เวลาเข้า</button>
                                             <input type="time" id="timeIn" class="input-field py-1.5 text-xs font-medium text-center" oninput="updateSessionUI()">
                                         </div>
                                         <div class="flex flex-col gap-1">
-                                            <button onclick="setTimeOutNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm">🕒 เวลาออก</button>
+                                            <button onclick="setTimeOutNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm btn-time-out">🕒 เวลาออก</button>
                                             <input type="time" id="timeOut" class="input-field py-1.5 text-xs font-medium text-center">
                                         </div>
                                     </div>
@@ -474,19 +484,19 @@
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <div class="flex justify-between items-end mb-1"><label class="block text-xs font-semibold text-red-500 dark:text-red-400">7. SL</label><button onclick="toggleSLMode()" id="slModeBtn" class="text-[9px] bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 px-1.5 py-0.5 rounded font-bold border border-red-200 dark:border-red-800">แบบ Pts</button></div>
+                                    <div class="flex justify-between items-end mb-1"><label class="block text-xs font-semibold text-red-500 dark:text-red-400" data-i18n="slLabel">7. SL</label><button onclick="toggleSLMode()" id="slModeBtn" class="text-[9px] bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 px-1.5 py-0.5 rounded font-bold border border-red-200 dark:border-red-800">แบบ Pts</button></div>
                                     <input type="number" id="slInput" class="input-field py-2 text-sm" placeholder="ระบุจุด (Pts)" oninput="calculatePrices()" step="any">
                                     <div id="slDisplay" data-price="0.00" data-pts="0" class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 pl-1 font-medium">Price: 0.00</div>
                                 </div>
                                 <div>
-                                    <div class="flex justify-between items-end mb-1"><label class="block text-xs font-semibold text-green-600 dark:text-green-400">8. TP</label><button onclick="toggleTPMode()" id="tpModeBtn" class="text-[9px] bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded font-bold border border-green-200 dark:border-green-800">แบบ Pts</button></div>
+                                    <div class="flex justify-between items-end mb-1"><label class="block text-xs font-semibold text-green-600 dark:text-green-400" data-i18n="tpLabel">8. TP</label><button onclick="toggleTPMode()" id="tpModeBtn" class="text-[9px] bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded font-bold border border-green-200 dark:border-green-800">แบบ Pts</button></div>
                                     <input type="number" id="tpInput" class="input-field py-2 text-sm" placeholder="ระบุจุด (Pts)" oninput="calculatePrices()" step="any">
                                     <div id="tpDisplay" data-price="0.00" data-pts="0" class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 pl-1 font-medium">Price: 0.00</div>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="number" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="0" step="any"></div>
-                                <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="จุด" step="any"></div>
+                                <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1" data-i18n="ddLabel">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="จุด" step="any"></div>
                             </div>
                             <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="remarkLabel">11. Remark</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
                             <div class="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
@@ -754,7 +764,7 @@
 // ════════════════════════════════════════════════════════════
 const i18nDict = {
     th: {
-        appTitle:"Trading Dashboard",dateLabel:"วันที่:",weeklyPerf:"Weekly Performance (Cloud)",
+        appTitle:"Trading Dashboard",dateLabel:"วันที่:",weeklyPerf:"Weekly Performance",
         menuDash:"Dashboard",menuCal:"Calendar & Stats (Soon)",menuPlan:"Trade Playbook (Soon)",
         noteTitle:"บันทึกก่อนเทรด & โครงสร้างตลาด",noteImageLabel:"ภาพประกอบบันทึก",pastePrompt:"กด Ctrl+V วางรูปได้",
         saveNoteBtn:"💾 บันทึก Note",editNoteBtn:"✏️ แก้ไข Note",
@@ -772,7 +782,7 @@ const i18nDict = {
         modePts:"แบบ Pts",modePrice:"แบบ Price"
     },
     en: {
-        appTitle:"Trading Dashboard",dateLabel:"Date:",weeklyPerf:"Weekly Performance (Cloud)",
+        appTitle:"Trading Dashboard",dateLabel:"Date:",weeklyPerf:"Weekly Performance",
         menuDash:"Dashboard",menuCal:"Calendar & Stats (Soon)",menuPlan:"Trade Playbook (Soon)",
         noteTitle:"Pre-Trade Note & Market Structure",noteImageLabel:"Note Images",pastePrompt:"Press Ctrl+V to paste image",
         saveNoteBtn:"💾 Save Note",editNoteBtn:"✏️ Edit Note",
@@ -1056,33 +1066,63 @@ function setLang(lang, save=true) {
     const btn=document.getElementById('saveBtn');
     if(editingId) btn.innerText=i18nDict[lang].updateOrderBtn; else btn.innerText=i18nDict[lang].saveOrderBtn;
 
-    // Translate placeholders
+    const isTH = lang === 'th';
+
+    // Placeholders
     const phMap = {
-        tradeSetup: lang==='en'?'e.g. Zone BO, STO':'e.g. Zone BO, STO',
-        tradeRemark: lang==='en'?'Additional notes...':'ข้อสังเกตเพิ่มเติม...',
-        tradeEmotion: lang==='en'?'Emotion e.g. FOMO, Greedy...':'อารมณ์ตอนเข้าเทรด เช่น โลภ, กลัวตกรถ...',
+        tradeSetup: isTH ? 'e.g. Zone BO, STO' : 'e.g. Zone BO, STO',
+        tradeRemark: isTH ? 'ข้อสังเกตเพิ่มเติม...' : 'Additional notes...',
+        tradeEmotion: isTH ? 'อารมณ์ตอนเข้าเทรด เช่น โลภ, กลัวตกรถ...' : 'Emotion e.g. FOMO, Greedy...',
         entryPrice: '0.00', lotSize: '0.00',
     };
-    Object.entries(phMap).forEach(([id, ph]) => {
-        const el = document.getElementById(id);
-        if (el) el.placeholder = ph;
-    });
+    Object.entries(phMap).forEach(([id, ph]) => { const el=document.getElementById(id); if(el) el.placeholder=ph; });
 
-    // Translate form title if not editing
+    // Form title
     if (!editingId) {
         const ft = document.getElementById('formTitle');
-        if (ft) ft.innerText = '🎯 ' + (lang==='th' ? 'บันทึกออเดอร์' : 'Order Entry');
+        if (ft) ft.innerText = isTH ? '🎯 บันทึกออเดอร์' : '🎯 Order Entry';
     }
 
-    // Translate note buttons
-    const snb = document.getElementById('saveNoteBtn');
-    const enb = document.getElementById('editNoteBtn');
-    if (snb) snb.innerHTML = lang==='th' ? '💾 บันทึก Note' : '💾 Save Note';
-    if (enb) enb.innerHTML = lang==='th' ? '✏️ แก้ไข Note' : '✏️ Edit Note';
+    // Note section
+    const noteTitle = document.querySelector('#noteSection h2 span:last-child');
+    if (noteTitle) noteTitle.textContent = isTH ? 'บันทึกก่อนเทรด & โครงสร้างตลาด' : 'Pre-Trade Note & Market Structure';
+    const snb=document.getElementById('saveNoteBtn');
+    const enb=document.getElementById('editNoteBtn');
+    if (snb) snb.innerHTML = isTH ? '💾 บันทึก Note' : '💾 Save Note';
+    if (enb) enb.innerHTML = isTH ? '✏️ แก้ไข Note' : '✏️ Edit Note';
 
-    // Translate history title
+    // Note image label
+    const nilEl = document.querySelector('label[data-i18n="noteImageLabel"]');
+    if (nilEl) nilEl.textContent = isTH ? 'ภาพประกอบ' : 'Images';
+    const noteImgCount = document.getElementById('noteImgCount');
+    const pasteSpans = document.querySelectorAll('.col-span-full.text-xs.text-gray-400.italic');
+    pasteSpans.forEach(el => el.textContent = isTH ? 'กด Ctrl+V วางรูปได้ (สูงสุด 10 รูป)' : 'Press Ctrl+V to paste (max 10 images)');
+
+    // SL/TP labels
+    const slLbl = document.querySelector('label[data-i18n="slLabel"]');
+    const tpLbl = document.querySelector('label[data-i18n="tpLabel"]');
+    if (slLbl) slLbl.textContent = isTH ? '7. SL' : '7. SL';
+    if (tpLbl) tpLbl.textContent = isTH ? '8. TP' : '8. TP';
+
+    // SL/TP mode buttons
+    document.getElementById('slModeBtn').innerText = inputModeSL==='pts'?i18nDict[lang].modePts:i18nDict[lang].modePrice;
+    document.getElementById('tpModeBtn').innerText = inputModeTP==='pts'?i18nDict[lang].modePts:i18nDict[lang].modePrice;
+
+    // History title
     const ht = document.querySelector('[data-i18n="historyTitle"]');
-    if (ht) ht.innerHTML = lang==='th' ? 'Trade History (ประจำวัน)' : 'Daily Trade History';
+    if (ht) ht.innerHTML = isTH ? 'Trade History (ประจำวัน)' : 'Daily Trade History';
+
+    // Weekly performance
+    const wp = document.querySelector('[data-i18n="weeklyPerf"]');
+    if (wp) wp.textContent = isTH ? 'สรุปผลรายสัปดาห์' : 'Weekly Performance';
+
+    // Time buttons
+    document.querySelectorAll('.btn-time-in').forEach(b => b.textContent = isTH ? '🕒 เวลาเข้า' : '🕒 Time In');
+    document.querySelectorAll('.btn-time-out').forEach(b => b.textContent = isTH ? '🕒 เวลาออก' : '🕒 Time Out');
+
+    // DD label
+    const ddLbl = document.querySelector('label[data-i18n="ddLabel"]');
+    if (ddLbl) ddLbl.textContent = isTH ? '10. Drawdown (Pts)' : '10. Drawdown (Pts)';
 
     if(save) saveSettings('lang',lang);
 }
@@ -1178,13 +1218,18 @@ function updateSessionUI() {
 }
 
 function getSessionString(timeStr) {
+    // Session times in Thailand (UTC+7)
+    // SYD: 05:00-14:00 (300-840)
+    // TOK: 07:00-16:00 (420-960)
+    // LON: 14:00-23:00 (840-1380)
+    // NY:  19:00-04:00 (1140-1440 + 0-240)
     if (!timeStr || timeStr==='-') return '-';
     const [h,m] = timeStr.split(':').map(Number);
     const mins = h*60+(m||0);
-    if (mins>=720 && mins<1140) return 'NY';
-    if (mins>=480 && mins<900)  return 'LON';
-    if (mins>=120 && mins<540)  return 'TOK';
-    if (mins>=0   && mins<360)  return 'SYD';
+    if (mins>=1140 || mins<240) return 'NY';
+    if (mins>=840 && mins<1380) return 'LON';
+    if (mins>=420 && mins<960)  return 'TOK';
+    if (mins>=300 && mins<840)  return 'SYD';
     return '-';
 }
 
@@ -1289,6 +1334,47 @@ function selectCalendarDate(ds) { document.getElementById('globalDate').value=ds
 // ════════════════════════════════════════════════════════════
 //  Cloud: Load Page
 // ════════════════════════════════════════════════════════════
+function renderTradeCards(trades) {
+    const container = document.getElementById('tradeCardsContainer');
+    if (!container) return;
+    if (!trades || !trades.length) {
+        container.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">ไม่มีข้อมูลการเทรด</p>';
+        return;
+    }
+    container.innerHTML = trades.map((t, idx) => {
+        const pnl = parseFloat(t.pnl)||0;
+        const pnlC = pnl>0?'text-green-500':pnl<0?'text-red-400':'text-gray-400';
+        const pnlSign = pnl>0?'+':'';
+        const badges = {WIN:'bg-green-500',LOSS:'bg-red-500',BE:'bg-yellow-500',RUNNING:'bg-cyan-500'};
+        const dirC = t.direction==='BUY'?'text-blue-400':'text-red-400';
+        const stars = t.confidence>0 ? '★'.repeat(t.confidence) : '';
+        const orderNum = trades.length - idx;
+        return `<div class="bg-gray-800 dark:bg-slate-800 rounded-xl p-3 border border-gray-700 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400">#${orderNum}</span>
+                    <span class="font-bold ${dirC}">${t.direction}</span>
+                    <span class="text-[10px] text-white px-2 py-0.5 rounded-full font-bold ${badges[t.result]||'bg-cyan-500'}">${t.result}</span>
+                </div>
+                <span class="font-bold text-base ${pnlC}">${pnlSign}$${pnl}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs text-gray-400 mb-2">
+                <div><span class="text-gray-500">เวลา:</span> ${t.timeIn||'-'} → ${t.timeOut||'-'}</div>
+                <div><span class="text-gray-500">Entry:</span> <span class="text-white">${t.entry||'-'}</span> (${t.lot||0} lot)</div>
+                <div><span class="text-red-400">SL</span> ${t.slPrice||'-'} (${t.slPoints||0}p)</div>
+                <div><span class="text-green-400">TP</span> ${t.tpPrice||'-'} (${t.tpPoints||0}p)</div>
+            </div>
+            ${t.setup&&t.setup!=='-'?`<div class="text-blue-400 text-xs font-bold mb-1">${t.setup}</div>`:''}
+            ${t.remark?`<div class="text-gray-300 text-xs mb-2">📝 ${t.remark}</div>`:''}
+            ${stars?`<div class="text-yellow-400 text-sm mb-2">${stars}</div>`:''}
+            <div class="flex gap-2 mt-2">
+                <button onclick="editTrade(${t.id})" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 rounded-lg">✏️ Edit</button>
+                <button onclick="openDeleteModal(${t.id},'${t.direction}','${t.result}','${t.setup||'-'}','${t.pnl||0}')" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 rounded-lg">🗑️ ลบ</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
 async function loadPageData() {
     const sel=document.getElementById('globalDate').value;
     if(!sel) return;
@@ -1519,6 +1605,8 @@ async function renderHistory() {
     const s=document.getElementById('dailyPnlSummary');
     s.innerText=`Total P&L: ${total>0?'+':''}$${total.toFixed(2)}`;
     s.className=`text-sm font-bold px-3 py-1 rounded-lg border ${total>0?'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800':total<0?'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800':'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700'}`;
+    // Render mobile cards
+    renderTradeCards(hist);
 }
 
 async function moveTrade(id, dir) {
@@ -2186,7 +2274,7 @@ function tickClock() {
     if (timeEl) {
         const h12 = h % 12 || 12;
         const ampm = h < 12 ? 'AM' : 'PM';
-        timeEl.innerHTML = `<span class="text-lg font-bold">${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span> <span class="text-xs font-bold text-white">${ampm}</span>`;
+        timeEl.innerHTML = `<span class="text-base font-bold tabular-nums">${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span><span class="text-[11px] font-bold text-blue-300 ml-1">${ampm}</span>`;
     }
 
     // Update date text
