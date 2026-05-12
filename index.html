@@ -113,17 +113,21 @@
             #historyTable th:nth-child(8),
             #historyTable td:nth-child(8) { display: none; }
             /* Clock mobile - compact layout */
-            #clockWidget { width: 110px !important; height: 110px !important; }
-            .clock-right-panel { font-size: 11px !important; }
         }
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
         }
 
         /* ── Clock Widget ── */
-        #clockWidget { position: relative; width: 120px; height: 120px; flex-shrink: 0; } @media(min-width:400px){#clockWidget{width:145px;height:145px;}} @media(min-width:640px){#clockWidget{width:160px;height:160px;}}
+        #clockWidget { position: relative; width: 110px; height: 110px; flex-shrink: 0; } @media(min-width:400px){#clockWidget{width:130px;height:130px;}} @media(min-width:640px){#clockWidget{width:150px;height:150px;}}
         #clockWidget svg { width: 100%; height: 100%; }
         .clock-session-badge { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+        #sessionBar { width: 100%; overflow: hidden; }
+        #sessionBar > div { overflow: hidden; }
+        #sessionBar .sess-name { font-size: 10px; min-width: 46px !important; }
+        #sessionBar span[id^="time"] { font-size: 10px; }
+        @media(min-width:400px) { #sessionBar .sess-name { font-size: 11px; min-width: 52px !important; } #sessionBar span[id^="time"] { font-size: 11px; } }
+        @media(min-width:640px) { #sessionBar .sess-name { font-size: 12px; min-width: 58px !important; } #sessionBar span[id^="time"] { font-size: 12px; } }
 
         /* ── Color Picker Toolbar ── */
         .note-toolbar-bottom { border-top: 1px solid #e5e7eb; padding-top: 10px; margin-top: 10px; }
@@ -405,7 +409,7 @@
                                 </div>
                                 <!-- Clock Widget -->
                                 <div class="bg-slate-100 dark:bg-slate-800/60 rounded-xl p-3 mb-3 border border-gray-200 dark:border-slate-700">
-                                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                                    <div class="flex items-center gap-3">
                                         <div id="clockWidget" style="flex-shrink:0">
                                         <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" id="clockSvg">
                                             <circle id="clockFace" cx="60" cy="60" r="55" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
@@ -418,24 +422,24 @@
                                         </svg>
                                         </div>
                                         <!-- Right side: time + sessions -->
-                                        <div class="flex-1 min-w-0 text-left clock-right-panel" style="min-width:160px">
+                                        <div class="flex-1 min-w-0 flex flex-col items-center text-center">
                                             <div id="clockTimeText" class="font-mono font-bold text-xl text-gray-900 dark:text-white mb-0.5 tabular-nums">00:00:00</div>
-                                            <div id="clockDateText" class="text-xs font-semibold text-gray-700 dark:text-white mb-1 leading-tight"></div>
-                                            <div class="space-y-1" id="sessionBar">
-                                                <div id="sessSyd" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#f97316">Sydney</span>
+                                            <div id="clockDateText" class="text-xs font-semibold text-gray-700 dark:text-white mb-1.5 leading-tight"></div>
+                                            <div class="space-y-1 w-full" id="sessionBar">
+                                                <div id="sessSyd" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold sess-name" style="color:#f97316;min-width:58px;text-align:left">Sydney</span>
                                                     <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeSyd">5AM–2PM</span>
                                                 </div>
-                                                <div id="sessTok" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#ec4899">Tokyo</span>
+                                                <div id="sessTok" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold sess-name" style="color:#ec4899;min-width:58px;text-align:left">Tokyo</span>
                                                     <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeTok">7AM–4PM</span>
                                                 </div>
-                                                <div id="sessLon" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#3b82f6">London</span>
+                                                <div id="sessLon" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold sess-name" style="color:#3b82f6;min-width:58px;text-align:left">London</span>
                                                     <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeLon">2PM–11PM</span>
                                                 </div>
-                                                <div id="sessNy" class="flex items-center gap-1 sm:gap-2 px-1.5 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
-                                                    <span class="text-xs font-bold w-[60px] sess-name" style="color:#22c55e">New York</span>
+                                                <div id="sessNy" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
+                                                    <span class="text-xs font-bold sess-name" style="color:#22c55e;min-width:58px;text-align:left">New York</span>
                                                     <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeNy">7PM–4AM</span>
                                                 </div>
                                             </div>
