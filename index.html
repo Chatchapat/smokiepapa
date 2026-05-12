@@ -45,36 +45,41 @@
         }
 
         /* ══ WINTER VOID theme class applied to <html> ══ */
-        html.winter-void body {
-            background-color: #0d0f0f !important;
-            color: var(--wv-snow) !important;
+        html.winter-void {
+            color: var(--wv-snow);
         }
 
         /* ── Falling snow animation ── */
         .wv-snowflake {
-            position: fixed; top: -15px; pointer-events: none; z-index: 0;
-            color: rgba(232,230,226,0.5); font-size: 0.9em;
-            opacity: 0; animation: wv-fall linear infinite;
+            position: fixed; top: -20px; pointer-events: none;
+            z-index: 9998; /* above everything except modals */
+            font-size: 1em; opacity: 0;
+            animation: wv-fall linear forwards;
+            text-shadow: 0 0 4px rgba(232,230,226,0.6);
         }
         @keyframes wv-fall {
-            0%   { opacity:0; transform: translateY(0) rotate(0deg); }
-            8%   { opacity:0.55; }
-            92%  { opacity:0.25; }
-            100% { opacity:0; transform: translateY(100vh) rotate(360deg); }
+            0%   { opacity: 0;    transform: translateY(0)     rotate(0deg)   translateX(0); }
+            5%   { opacity: 0.7; }
+            50%  { transform: translateY(50vh)  rotate(180deg) translateX(15px); }
+            95%  { opacity: 0.3; }
+            100% { opacity: 0;    transform: translateY(102vh) rotate(360deg) translateX(-10px); }
         }
 
         /* ── Pine background canvas ── */
         #wvBgCanvas {
-            position: fixed; inset: 0; z-index: 0;
+            position: fixed; inset: 0; z-index: 1;
             pointer-events: none; overflow: hidden;
         }
         #wvBgCanvas svg { width:100%; height:100%; position:absolute; top:0; left:0; }
 
-        /* ── Winter Void: sidebar override ── */
-        html.winter-void #sidebar {
-            background: rgba(12,14,14,0.97) !important;
-            border-right: 1px solid rgba(164,159,157,0.07) !important;
-        }
+        /* make app shell transparent when winter-void so bg shows through */
+        html.winter-void body { background-color: #0d0f0f !important; }
+        html.winter-void > body > .flex { position: relative; z-index: 2; }
+        html.winter-void #sidebar   { position: relative; z-index: 52 !important; }
+        html.winter-void header     { position: relative; z-index: 32 !important; }
+        html.winter-void main       { background: rgba(14,16,16,0.72) !important; }
+
+        /* ── Winter Void: sidebar nav items ── */
         html.winter-void .nav-item {
             color: var(--wv-artillery) !important;
             border-left: 3px solid transparent;
@@ -110,7 +115,13 @@
 
         /* ── Winter Void: main area ── */
         html.winter-void main {
-            background: rgba(16,18,18,0.95) !important;
+            background: rgba(14,16,16,0.70) !important;
+        }
+
+        /* ── Winter Void: sidebar – keep dark so it's legible but slightly transparent ── */
+        html.winter-void #sidebar {
+            background: rgba(10,12,12,0.90) !important;
+            border-right: 1px solid rgba(164,159,157,0.08) !important;
         }
 
         /* ── Winter Void: cards ── */
@@ -1550,9 +1561,14 @@ let _wvSnowInterval = null;
 function _startWvSnow() {
     const c = document.getElementById('wvSnowContainer');
     if (!c || _wvSnowInterval) return;
-    // Seed initial flakes
-    for (let i = 0; i < 35; i++) _spawnFlake(c, true);
-    _wvSnowInterval = setInterval(() => { if (c) _spawnFlake(c, false); }, 600);
+    // seed initial spread of flakes already mid-fall
+    for (let i = 0; i < 30; i++) _spawnFlake(c, true);
+    // keep spawning new flakes continuously
+    _wvSnowInterval = setInterval(() => {
+        if (document.documentElement.classList.contains('winter-void')) {
+            _spawnFlake(c, false);
+        }
+    }, 400);
 }
 function _stopWvSnow() {
     clearInterval(_wvSnowInterval);
@@ -1560,19 +1576,38 @@ function _stopWvSnow() {
     const c = document.getElementById('wvSnowContainer');
     if (c) c.innerHTML = '';
 }
-function _spawnFlake(container, immediate) {
-    const chars = ['·', '•', '*', '+'];
+function _spawnFlake(container, seeded) {
+    const chars = ['*', '·', '•', '+', '❄', '∗'];
+    const weights = [4, 3, 3, 2, 1, 1]; // weighted — fewer ❄
+    let rand = Math.random() * weights.reduce((a,b)=>a+b, 0);
+    let char = chars[0];
+    for (let i = 0; i < chars.length; i++) {
+        rand -= weights[i];
+        if (rand <= 0) { char = chars[i]; break; }
+    }
     const f = document.createElement('div');
     f.className = 'wv-snowflake';
-    f.textContent = chars[Math.floor(Math.random() * chars.length)];
-    const size     = (Math.random() * 0.7 + 0.5).toFixed(2);
+    f.textContent = char;
+
+    const size     = (Math.random() * 0.8 + 0.5).toFixed(2);
     const left     = (Math.random() * 100).toFixed(1);
-    const duration = (Math.random() * 12 + 9).toFixed(1);
-    const delay    = immediate ? -(Math.random() * parseFloat(duration)).toFixed(1) : '0';
-    f.style.cssText = `left:${left}%;font-size:${size}em;animation-duration:${duration}s;animation-delay:${delay}s;color:rgba(232,230,226,${(Math.random()*0.4+0.15).toFixed(2)});`;
+    const duration = (Math.random() * 8 + 7).toFixed(1);   // 7–15s
+    const opacity  = (Math.random() * 0.5 + 0.2).toFixed(2);
+    // seeded flakes start mid-fall (negative delay)
+    const delay    = seeded ? (-(Math.random() * parseFloat(duration))).toFixed(1) : '0';
+
+    f.style.cssText = [
+        `left:${left}%`,
+        `font-size:${size}em`,
+        `animation-duration:${duration}s`,
+        `animation-delay:${delay}s`,
+        `color:rgba(232,230,226,${opacity})`,
+    ].join(';');
+
     container.appendChild(f);
-    // remove after animation completes
-    setTimeout(() => f.remove(), (parseFloat(duration) + Math.abs(parseFloat(delay))) * 1000 + 500);
+    // remove after animation ends so DOM stays clean
+    const totalMs = (parseFloat(duration) + Math.max(0, parseFloat(delay))) * 1000 + 200;
+    setTimeout(() => { if (f.parentNode) f.remove(); }, totalMs);
 }
 
 function setLayout(layout, save=true) {
