@@ -344,7 +344,21 @@
             background: rgba(127,29,26,0.4) !important;
         }
 
-        /* ── Raise all overlays above wvBgCanvas in winter void ── */
+        /* ── Winter Void: settings slide panel ── */
+        html.winter-void #settingsModal {
+            background: #1c1a18 !important;
+            border-left: 1px solid rgba(164,159,157,0.15) !important;
+            color: var(--wv-snow) !important;
+        }
+        html.winter-void #settingsModal .text-gray-800,
+        html.winter-void #settingsModal .dark\:text-white { color: var(--wv-snow) !important; }
+        html.winter-void #settingsModal .text-gray-600,
+        html.winter-void #settingsModal .dark\:text-gray-300 { color: var(--wv-equil) !important; }
+        html.winter-void #settingsModal .border-gray-200,
+        html.winter-void #settingsModal .dark\:border-slate-700 { border-color: rgba(164,159,157,0.15) !important; }
+        html.winter-void #settingsModal .bg-gray-50,
+        html.winter-void #settingsModal .dark\:bg-slate-900 { background: rgba(14,16,16,0.7) !important; }
+        html.winter-void #settingsModal hr { border-color: rgba(164,159,157,0.12) !important; }
         html.winter-void #settingsModal { z-index: 9999 !important; }
         html.winter-void #deleteModal   { z-index: 9999 !important; }
         html.winter-void #importModal   { z-index: 9999 !important; }
@@ -1080,8 +1094,11 @@
 </div>
 
 <!-- ══ SETTINGS MODAL ══ -->
-<div id="settingsModal" class="fixed inset-0 bg-black/60 hidden z-[200] flex items-center justify-center backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-sm max-h-[90vh] overflow-y-auto">
+<!-- Backdrop overlay — separate from panel so both render at body level -->
+<div id="settingsBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9990;backdrop-filter:blur(2px);" onclick="toggleSettingsModal()"></div>
+<!-- Sliding panel from right -->
+<div id="settingsModal" style="display:none;position:fixed;top:0;right:0;height:100%;width:100%;max-width:360px;z-index:9991;overflow-y:auto;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);" class="bg-white dark:bg-slate-800 shadow-2xl border-l border-gray-200 dark:border-slate-700">
+    <div class="p-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="settingsTitle">⚙️ Settings</h2>
             <button onclick="toggleSettingsModal()" class="text-gray-500 hover:text-gray-800 dark:hover:text-white font-bold text-xl">&times;</button>
@@ -1460,8 +1477,31 @@ function calculatePrices() {
 //  Settings
 // ════════════════════════════════════════════════════════════
 function toggleSettingsModal() {
-    document.getElementById('settingsModal').classList.toggle('hidden');
-    loadBackupStats();
+    const panel    = document.getElementById('settingsModal');
+    const backdrop = document.getElementById('settingsBackdrop');
+    const isOpen   = panel.style.display !== 'none' && panel.style.transform === 'translateX(0%)';
+
+    if (isOpen) {
+        // close
+        panel.style.transform = 'translateX(100%)';
+        backdrop.style.opacity = '0';
+        setTimeout(() => {
+            panel.style.display    = 'none';
+            backdrop.style.display = 'none';
+            backdrop.style.opacity = '';
+        }, 300);
+    } else {
+        // open
+        panel.style.display    = 'block';
+        backdrop.style.display = 'block';
+        backdrop.style.opacity = '0';
+        // force reflow so transition fires
+        void panel.offsetWidth;
+        panel.style.transform  = 'translateX(0%)';
+        backdrop.style.transition = 'opacity 0.3s ease';
+        backdrop.style.opacity = '1';
+        loadBackupStats();
+    }
 }
 
 function loadSettings() {
