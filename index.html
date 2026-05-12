@@ -380,7 +380,7 @@
                                 <thead class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide">
                                     <tr>
                                         <th class="px-2 py-3 text-center" style="width:36px">#</th>
-                                        <th class="px-2 py-3" style="width:68px">Time</th>
+                                        <th class="px-2 py-3" style="width:95px">Time</th>
                                         <th class="px-2 py-3" style="width:90px">Order</th>
                                         <th class="px-2 py-3">Setup & Remark</th>
                                         <th class="px-2 py-3" style="width:88px">Entry/Lot</th>
@@ -1603,11 +1603,15 @@ async function renderHistory() {
             const imgs=parseImages(t.images);
             const imgEl=imgs.length?`<div class="flex items-center gap-1.5 bg-gray-50 dark:bg-slate-800/50 p-1 rounded border border-gray-200 dark:border-slate-700 w-fit"><span class="text-xs font-bold text-gray-500 dark:text-gray-400 ml-1">${imgs.length}</span><div class="relative w-8 h-8 rounded border border-gray-300 dark:border-slate-600 overflow-hidden cursor-pointer hover:opacity-80" onclick='openModal(${JSON.stringify(imgs)},0)'><img src="${imgs[0]}" class="w-full h-full object-cover"></div></div>`:`<span class="text-gray-400">-</span>`;
             const sess=t.sessionStr&&t.sessionStr!=='-'?t.sessionStr:getSessionString(t.timeIn);
-            const sessBadge=sess&&sess!=='-'?`<div class="mt-1.5"><span class="text-[9px] px-1.5 py-0.5 rounded font-bold border ${getSessionColor(sess)}">${sess}</span></div>`:'';
+            const sessBadge=sess&&sess!=='-'?`<span class="inline-block text-[9px] px-1.5 py-0.5 rounded font-bold border ${getSessionColor(sess)} whitespace-nowrap">${sess}</span>`:'';
             const orderNum=hist.length-idx;
             return `<tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-b border-gray-100 dark:border-slate-800/50 last:border-0">
                 <td class="px-2 py-3 text-xs font-bold text-gray-400 dark:text-gray-500 align-top text-center">#${orderNum}</td>
-                <td class="px-2 py-3 text-xs text-gray-600 dark:text-gray-400 align-top">${t.timeIn||'-'}<br>${t.timeOut||'-'}${sessBadge}</td>
+                <td class="px-2 py-3 text-xs text-gray-600 dark:text-gray-400 align-top whitespace-nowrap">
+                    <div class="font-mono leading-snug">${t.timeIn||'-'}</div>
+                    <div class="font-mono leading-snug">${t.timeOut||'-'}</div>
+                    ${sessBadge?`<div class="mt-1">${sessBadge}</div>`:''}
+                </td>
                 <td class="px-2 py-3 align-top"><div class="font-bold text-sm ${dirC}">${t.direction||'-'}</div><div class="mt-1">${badge}</div></td>
                 <td class="px-2 py-3 align-top"><div class="break-words min-w-0">${t.setup&&t.setup!=='-'?`<div class="text-blue-600 dark:text-blue-400 font-bold text-sm leading-snug">${t.setup}</div>`:'-'}${t.remark?`<div class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-snug">📝 ${t.remark}</div>`:''}</div></td>
                 <td class="px-2 py-3 align-top"><div class="font-semibold text-sm text-gray-800 dark:text-gray-200">${t.entry||'0'}</div><div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div></td>
