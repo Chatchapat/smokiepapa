@@ -75,7 +75,6 @@
         /* make app shell transparent when winter-void so bg shows through */
         html.winter-void body { background-color: #0d0f0f !important; }
         html.winter-void > body > .flex { position: relative; z-index: 2; }
-        html.winter-void #sidebar   { position: relative; z-index: 52 !important; }
         html.winter-void header     { position: relative; z-index: 32 !important; }
         html.winter-void main       { background: rgba(14,16,16,0.72) !important; }
 
@@ -294,24 +293,33 @@
         /* ── Winter Void: scrollbar ── */
         html.winter-void ::-webkit-scrollbar-thumb { background: rgba(164,159,157,0.2) !important; }
 
-        /* ── Winter Void: clock widget bg ── */
+        /* ── Winter Void: clock widget container ── */
         html.winter-void .bg-slate-100,
         html.winter-void .dark\:bg-slate-800\/60 {
-            background: rgba(36,30,26,0.7) !important;
-            border-color: rgba(164,159,157,0.12) !important;
+            background: #1e1a17 !important;
+            border-color: rgba(164,159,157,0.15) !important;
         }
+        /* clock face */
+        html.winter-void #clockFace {
+            fill: #1e1a17 !important;
+            stroke: rgba(164,159,157,0.2) !important;
+        }
+        /* session rows inside clock */
         html.winter-void #sessSyd,
         html.winter-void #sessTok,
         html.winter-void #sessLon,
         html.winter-void #sessNy {
-            background: rgba(36,30,26,0.5) !important;
+            background: rgba(30,26,23,0.7) !important;
+            border-color: rgba(164,159,157,0.08) !important;
         }
 
-        /* ── Winter Void: note image attachment area ── */
+        /* ── Winter Void: note image attachment area + form image container ── */
         html.winter-void .dark\:bg-slate-800\/50,
-        html.winter-void .border-dashed.dark\:border-slate-600 {
-            background: rgba(36,30,26,0.6) !important;
-            border-color: rgba(164,159,157,0.2) !important;
+        html.winter-void .border-dashed.dark\:border-slate-600,
+        html.winter-void .dark\:bg-slate-800\/50.p-3.rounded-lg,
+        html.winter-void .dark\:bg-slate-800\/50.p-2.rounded {
+            background: #1e1a17 !important;
+            border-color: rgba(164,159,157,0.18) !important;
         }
         html.winter-void .clock-hand-hour { stroke: var(--wv-snow) !important; }
         html.winter-void .clock-tick-major { stroke: var(--wv-artillery) !important; }
@@ -2684,13 +2692,24 @@ function initClock() {
     
     // Update clock face color based on theme
     function updateClockTheme() {
+        const isWV   = document.documentElement.classList.contains('winter-void');
         const isDark = document.documentElement.classList.contains('dark');
-        const face = document.getElementById('clockFace');
+        const face     = document.getElementById('clockFace');
         const hourHand = document.getElementById('clockHour');
-        const minHand = document.getElementById('clockMin');
-        if (face) { face.setAttribute('fill', isDark ? '#0f172a' : '#f1f5f9'); face.setAttribute('stroke', isDark ? '#334155' : '#cbd5e1'); }
-        if (hourHand) hourHand.setAttribute('stroke', isDark ? '#ffffff' : '#1e293b');
-        if (minHand) minHand.setAttribute('stroke', isDark ? '#ffffff' : '#475569');
+        const minHand  = document.getElementById('clockMin');
+        if (isWV) {
+            if (face)     { face.setAttribute('fill', '#1e1a17'); face.setAttribute('stroke', 'rgba(164,159,157,0.2)'); }
+            if (hourHand) hourHand.setAttribute('stroke', '#E8E6E2');
+            if (minHand)  minHand.setAttribute('stroke', '#E8E6E2');
+        } else if (isDark) {
+            if (face)     { face.setAttribute('fill', '#0f172a'); face.setAttribute('stroke', '#334155'); }
+            if (hourHand) hourHand.setAttribute('stroke', '#ffffff');
+            if (minHand)  minHand.setAttribute('stroke', '#ffffff');
+        } else {
+            if (face)     { face.setAttribute('fill', '#f1f5f9'); face.setAttribute('stroke', '#cbd5e1'); }
+            if (hourHand) hourHand.setAttribute('stroke', '#1e293b');
+            if (minHand)  minHand.setAttribute('stroke', '#475569');
+        }
     }
     updateClockTheme();
     // Watch for theme changes
