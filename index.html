@@ -492,8 +492,40 @@
             align-items: center;
         }
 
-        /* ── Mobile Responsive ── */
+        /* ══ MOBILE-ONLY OVERRIDES (≤768px) ══ */
         @media (max-width: 768px) {
+
+            /* ── Item 1: Weekly strip — show only today + yesterday ── */
+            #weeklyCalendar { display:flex !important; gap:8px !important; }
+            #weeklyCalendar > div { display:none !important; flex:1 !important; min-width:0 !important; }
+            #weeklyCalendar > div.wc-today,
+            #weeklyCalendar > div.wc-yesterday { display:block !important; }
+
+            /* ── Items 2&3: History header — single-row, compact ── */
+            #historyTableHeader {
+                padding: 8px 10px !important;
+                gap: 6px;
+            }
+            #historyTableHeader .history-title-text {
+                font-size: 12px !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 155px;
+            }
+            #dailyPnlSummary {
+                font-size: 11px !important;
+                padding: 3px 8px !important;
+                white-space: nowrap;
+                flex-shrink: 0;
+                text-align: center;
+            }
+
+            /* ── Item 4: Form above history on mobile ── */
+            #mainLayout { flex-direction: column !important; }
+            #leftColMain  { order: 2 !important; }
+            #formColMain  { order: 1 !important; }
+        }
             .card { border-radius: 10px; }
             header { padding: 0 12px; }
             main { padding: 12px !important; }
@@ -747,7 +779,7 @@
             </div>
 
             <div id="mainLayout" class="flex flex-col xl:flex-row gap-6 transition-all duration-500">
-                <div class="w-full xl:flex-1 flex flex-col gap-6">
+                <div class="w-full xl:flex-1 flex flex-col gap-6" id="leftColMain">
                     <!-- Daily Note -->
                     <div class="card p-5 border-t-4 border-t-purple-500 dark:border-t-purple-700" id="noteSection">
                         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
@@ -835,8 +867,8 @@
                     </div>
                                         <!-- History Table -->
                     <div class="card overflow-hidden flex-1 flex flex-col">
-                        <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center">
-                            <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span data-i18n="historyTitle">บันทึกการเทรดประจำวัน</span></h3>
+                        <div id="historyTableHeader" class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center">
+                            <h3 class="font-semibold text-gray-800 dark:text-gray-200 flex items-center"><span class="mr-2">🗂️</span><span class="history-title-text" data-i18n="historyTitle">บันทึกการเทรดประจำวัน</span></h3>
                             <span id="dailyPnlSummary" class="text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400">Total P&L: $0.00</span>
                         </div>
                         <div class="overflow-x-auto flex-1">
@@ -861,7 +893,7 @@
                     </div>
                 </div>
                 <!-- Order Form -->
-                <div class="w-full xl:w-[380px] shrink-0">
+                <div class="w-full xl:w-[380px] shrink-0" id="formColMain">
                     <div class="card p-5 sticky top-4 border-t-4 border-t-blue-500" id="formSection">
                         <div class="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-slate-700 pb-3">
                             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200" id="formTitle">🎯 บันทึกออเดอร์</h2>
@@ -1929,6 +1961,10 @@ async function renderWeeklyCalendar(targetDateStr) {
         if(!error&&data) hist=data;
     } catch(e){ console.error(e); }
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    const yestDate = new Date(); yestDate.setDate(yestDate.getDate()-1);
+    const yestStr  = yestDate.toISOString().split('T')[0];
+
     const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     let html='';
     for(let i=0;i<7;i++){
@@ -1944,7 +1980,9 @@ async function renderWeeklyCalendar(targetDateStr) {
         const sign=total>0?'+':'';
         const sel=ds===targetDateStr;
         const card=sel?'bg-blue-50 border-blue-400 shadow-sm dark:bg-slate-800 dark:border-blue-500':'bg-white border-gray-200 hover:bg-gray-50 dark:bg-slate-800 dark:border-slate-700';
-        html+=`<div onclick="selectCalendarDate('${ds}')" class="flex flex-col p-2.5 rounded-xl border ${card} cursor-pointer transition text-center h-full justify-between">
+        // mobile visibility classes
+        const mobileClass = ds===todayStr ? 'wc-today' : ds===yestStr ? 'wc-yesterday' : '';
+        html+=`<div onclick="selectCalendarDate('${ds}')" class="flex flex-col p-2.5 rounded-xl border ${card} cursor-pointer transition text-center h-full justify-between ${mobileClass}">
             <div class="text-xs font-bold text-gray-400 uppercase">${dayNames[i]} <span class="text-gray-700 dark:text-gray-200 text-sm ml-1">${String(cur.getDate()).padStart(2,'0')}</span></div>
             <div class="mt-2 flex flex-col gap-1">
                 <div class="text-sm font-bold ${pnlC}">${total===0&&day.length===0?'-':sign+'$'+total.toFixed(2)}</div>
