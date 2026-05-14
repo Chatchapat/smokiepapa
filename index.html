@@ -447,19 +447,50 @@
         header { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); }
         .dark header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 
-        /* ── 2-row trade table ── */
+        /* ── Trade History: Responsive layout ── */
+        .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-        /* Responsive table: desktop shows 1-row, mobile shows 2-row */
-        /* Default = desktop, JS will switch based on container width */
-        .trade-row-mobile { display:none !important; }
+
+        /* Desktop: table, Mobile: card list */
+        .trade-row-mobile  { display:none !important; }
         .trade-row-desktop { display:table-row !important; }
-        #theadMobile { display:none !important; }
+        #theadMobile  { display:none !important; }
         #theadDesktop { display:table-header-group !important; }
-        /* When table-mobile class added to table */
-        #historyTable.table-mobile .trade-row-mobile { display:table-row !important; }
+
+        /* Card mode — activated when JS adds .table-mobile to #historyTable */
+        #historyTable.table-mobile { display:block !important; border:none !important; background:transparent !important; }
+        #historyTable.table-mobile thead { display:none !important; }
+        #historyTable.table-mobile tbody { display:flex; flex-direction:column; gap:10px; }
         #historyTable.table-mobile .trade-row-desktop { display:none !important; }
-        #historyTable.table-mobile #theadMobile { display:table-header-group !important; }
-        #historyTable.table-mobile #theadDesktop { display:none !important; }
+        #historyTable.table-mobile .trade-row-mobile  { display:block !important; }
+        /* The card itself */
+        #historyTable.table-mobile .trade-card-mobile {
+            background: var(--bg-card, #1e293b);
+            border: 1px solid var(--border-card, rgba(100,116,139,0.3));
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        #historyTable.table-mobile .tc-head {
+            padding: 10px 12px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        #historyTable.table-mobile .tc-body {
+            padding: 8px 12px 10px;
+            border-top: 1px solid var(--border-card, rgba(100,116,139,0.2));
+        }
+        #historyTable.table-mobile .tc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        #historyTable.table-mobile .tc-act {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
 
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
@@ -810,7 +841,6 @@
                         </div>
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left text-sm" style="word-break:break-word" id="historyTable">
-                                <!-- Desktop header (≥900px) -->
                                 <thead id="theadDesktop" class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide">
                                     <tr>
                                         <th class="px-2 py-3 text-center" style="width:36px">#</th>
@@ -823,22 +853,6 @@
                                         <th class="px-2 py-3 text-center" style="width:110px">Mood</th>
                                         <th class="px-2 py-3 text-center" style="width:80px">Capture</th>
                                         <th class="px-2 py-3 text-center" style="width:110px">Act</th>
-                                    </tr>
-                                </thead>
-                                <!-- Mobile header (<900px) -->
-                                <thead id="theadMobile" class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide" style="display:none">
-                                    <tr>
-                                        <th class="px-2 py-2 text-center w-8">#</th>
-                                        <th class="px-2 py-2 w-20">Time</th>
-                                        <th class="px-2 py-2 w-20">Order</th>
-                                        <th class="px-2 py-2">Setup & Remark</th>
-                                        <th class="px-2 py-2 w-24">Entry/Lot</th>
-                                    </tr>
-                                    <tr class="border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/60">
-                                        <th class="px-2 py-1.5 text-center" colspan="1" style="font-size:9px;opacity:0.5;">↓</th>
-                                        <th class="px-2 py-1.5" style="font-size:9px;" colspan="2">SL/TP</th>
-                                        <th class="px-2 py-1.5" style="font-size:9px;">P&L · Mood</th>
-                                        <th class="px-2 py-1.5 text-center" style="font-size:9px;">Capture · Act</th>
                                     </tr>
                                 </thead>
                                 <tbody id="historyBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
@@ -2213,43 +2227,58 @@ async function renderHistory() {
                     </div>
                 </td>
             </tr>
-            <tr class="trade-row-mobile hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-t border-gray-200 dark:border-slate-700" style="display:none">
-                <td class="px-2 pt-3 pb-1 text-xs font-bold text-gray-400 dark:text-gray-500 align-top text-center">#${orderNum}</td>
-                <td class="px-2 pt-3 pb-1 text-xs text-gray-600 dark:text-gray-400 align-top whitespace-nowrap">
-                    <div class="font-mono leading-snug">${t.timeIn||'-'}</div>
-                    <div class="font-mono leading-snug">${t.timeOut||'-'}</div>
-                    ${sessBadge?`<div class="mt-1">${sessBadge}</div>`:''}
-                </td>
-                <td class="px-2 pt-3 pb-1 align-top"><div class="font-bold text-sm ${dirC}">${t.direction||'-'}</div><div class="mt-1">${badge}</div></td>
-                <td class="px-2 pt-3 pb-1 align-top">
-                    <div class="min-w-0">
-                        ${t.setup&&t.setup!=='-'?`<div class="text-blue-600 dark:text-blue-400 font-bold text-sm leading-snug break-words">${t.setup}</div>`:'-'}
-                        ${t.remark?`<div class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-snug break-words line-clamp-3">📝 ${t.remark}</div>`:''}
-                    </div>
-                </td>
-                <td class="px-2 pt-3 pb-1 align-top">
-                    <div class="font-semibold text-sm text-gray-800 dark:text-gray-200">${t.entry||'0'}</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div>
-                </td>
-            </tr>
-            <tr class="trade-row-mobile bg-gray-50/60 dark:bg-slate-800/30 border-b border-gray-200 dark:border-slate-700" style="display:none">
-                <td class="px-2 pt-1 pb-3 text-center align-top text-gray-300 dark:text-gray-600 text-xs">└</td>
-                <td class="px-2 pt-1 pb-3 align-top" colspan="2">
-                    <div class="text-xs text-gray-700 dark:text-gray-300"><span class="text-red-500 font-semibold">SL</span> ${t.slPrice||'0'} <span class="text-gray-400">(${t.slPoints||'0'}p)</span></div>
-                    <div class="text-xs text-gray-700 dark:text-gray-300 mt-0.5"><span class="text-green-600 font-semibold">TP</span> ${t.tpPrice||'0'} <span class="text-gray-400">(${t.tpPoints||'0'}p)</span></div>
-                </td>
-                <td class="px-2 pt-1 pb-3 align-top">
-                    <span class="font-bold text-sm ${pnlC}">${pnl>0?'+':''}${pnl}</span>
-                    <div class="mt-1">${stars}${t.emotion?`<div class="text-xs text-gray-600 dark:text-gray-300 font-medium break-words leading-snug">${t.emotion}</div>`:''}</div>
-                </td>
-                <td class="px-2 pt-1 pb-3 align-top">
-                    <div class="flex flex-col gap-1">
-                        <div class="mb-1">${imgEl}</div>
-                        <button onclick="editTrade(${t.id})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded-lg text-xs font-bold transition w-full shadow-sm">✏️ Edit</button>
-                        <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold transition w-full">🗑️ ลบ</button>
-                        <div class="flex gap-1">
-                            <button onclick="moveTrade(${t.id},-1)" class="flex-1 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 rounded py-1 text-xs font-bold transition">▲</button>
-                            <button onclick="moveTrade(${t.id},1)" class="flex-1 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 rounded py-1 text-xs font-bold transition">▼</button>
+            <tr class="trade-row-mobile" style="display:none">
+                <td style="padding:0;border:none;">
+                    <div class="trade-card-mobile">
+                        <!-- Card Head -->
+                        <div class="tc-head">
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
+                                    <span style="font-size:11px;font-weight:600;color:var(--text-muted,#94a3b8);">#${orderNum}</span>
+                                    <span style="font-size:11px;color:var(--text-muted,#94a3b8);font-family:monospace;">${t.timeIn||'-'}${t.timeOut?'–'+t.timeOut:''}</span>
+                                    ${sessBadge}
+                                </div>
+                                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+                                    <span style="font-weight:700;font-size:14px;" class="${dirC}">${t.direction||'-'}</span>
+                                    ${badge}
+                                    <span style="font-weight:700;font-size:13px;" class="${pnlC}">${pnl>0?'+':''}${pnl}</span>
+                                    ${t.confidence>0?`<span style="color:#f59e0b;font-size:13px;letter-spacing:1px;">${'★'.repeat(t.confidence)}</span>`:''}
+                                </div>
+                            </div>
+                            <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+                                <div style="font-size:14px;font-weight:600;color:var(--text-primary,#f1f5f9);">${t.entry||'0'}</div>
+                                <div style="font-size:11px;color:var(--text-muted,#94a3b8);">${t.lot||'0'} Lot</div>
+                            </div>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="tc-body">
+                            ${t.setup&&t.setup!=='-'?`<div style="font-size:13px;font-weight:700;color:#60a5fa;margin-bottom:3px;">${t.setup}</div>`:''}
+                            ${t.remark?`<div style="font-size:11px;color:var(--text-secondary,#94a3b8);line-height:1.5;margin-bottom:8px;" class="line-clamp-2">📝 ${t.remark}</div>`:'<div style="margin-bottom:6px;"></div>'}
+                            <!-- SL/TP · P&L · Mood grid -->
+                            <div class="tc-grid">
+                                <div>
+                                    <div style="font-size:10px;color:var(--text-muted,#64748b);margin-bottom:2px;">SL / TP</div>
+                                    <div style="font-size:11px;color:var(--text-secondary,#94a3b8);"><span style="color:#ef4444;font-weight:600;">SL</span> ${t.slPrice||'0'}<br><span style="color:#22c55e;font-weight:600;">TP</span> ${t.tpPrice||'0'}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--text-muted,#64748b);margin-bottom:2px;">(pts)</div>
+                                    <div style="font-size:11px;color:var(--text-secondary,#94a3b8);">${t.slPoints||'0'}p<br>${t.tpPoints||'0'}p</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--text-muted,#64748b);margin-bottom:2px;">อารมณ์</div>
+                                    <div style="font-size:11px;color:var(--text-secondary,#94a3b8);">${t.emotion||'-'}</div>
+                                </div>
+                            </div>
+                            <!-- Actions -->
+                            <div class="tc-act">
+                                ${imgs.length?`<div style="flex-shrink:0;">${imgEl}</div>`:''}
+                                <button onclick="editTrade(${t.id})" style="flex:1;background:#d97706;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;padding:6px 10px;cursor:pointer;">✏️ Edit</button>
+                                <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" style="flex:1;background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:7px;font-size:12px;font-weight:600;padding:6px 10px;cursor:pointer;">🗑️ ลบ</button>
+                                <div style="display:flex;gap:4px;">
+                                    <button onclick="moveTrade(${t.id},-1)" style="background:rgba(100,116,139,0.2);color:var(--text-secondary,#94a3b8);border:1px solid rgba(100,116,139,0.2);border-radius:6px;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;">▲</button>
+                                    <button onclick="moveTrade(${t.id},1)"  style="background:rgba(100,116,139,0.2);color:var(--text-secondary,#94a3b8);border:1px solid rgba(100,116,139,0.2);border-radius:6px;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;">▼</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </td>
