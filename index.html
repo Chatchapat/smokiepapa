@@ -93,13 +93,105 @@
         /* Link/cloud: float */
         button:hover .ti-brand-google-drive { animation: icon-bounce 0.4s ease; }
 
-        /* ── Fix 6: Universal button press animation ── */
+        /* ── Button Lift + Underglow Effect ── */
         button {
-            transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.12s ease;
+            position: relative;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 6px 16px rgba(0,0,0,0.25),
+                0 2px 4px rgba(0,0,0,0.15);
         }
         button:active {
             transform: translateY(2px) scale(0.97) !important;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+        }
+        /* Colored underglow per button type */
+        .btn-primary:hover {
+            box-shadow:
+                0 6px 20px rgba(59,130,246,0.45),
+                0 2px 6px rgba(59,130,246,0.25) !important;
+        }
+        .btn-warning:hover {
+            box-shadow:
+                0 6px 20px rgba(245,158,11,0.45),
+                0 2px 6px rgba(245,158,11,0.25) !important;
+        }
+        /* Amber (Edit/Save) buttons */
+        button.bg-amber-600:hover, button.bg-amber-500:hover {
+            box-shadow:
+                0 6px 20px rgba(217,119,6,0.5),
+                0 2px 6px rgba(217,119,6,0.3) !important;
+        }
+        /* Red (delete) buttons */
+        button.bg-red-500:hover, button.bg-red-700:hover {
+            box-shadow:
+                0 6px 20px rgba(239,68,68,0.45),
+                0 2px 6px rgba(239,68,68,0.25) !important;
+        }
+        /* Green (Google Drive) buttons */
+        button.bg-emerald-600:hover {
+            box-shadow:
+                0 6px 20px rgba(5,150,105,0.45),
+                0 2px 6px rgba(5,150,105,0.25) !important;
+        }
+        /* Blue (Export) buttons */
+        button.bg-blue-600:hover {
+            box-shadow:
+                0 6px 20px rgba(37,99,235,0.45),
+                0 2px 6px rgba(37,99,235,0.25) !important;
+        }
+        /* Select buttons (BUY/SELL/WIN/LOSS etc) */
+        .select-btn {
+            transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+        }
+        .select-btn:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.2) !important;
+        }
+        .select-btn:active {
+            transform: translateY(2px) scale(0.97) !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
+        }
+        /* Winter Void — Falu Red glow */
+        html.winter-void .btn-primary:hover {
+            box-shadow:
+                0 6px 22px rgba(127,29,26,0.6),
+                0 2px 8px rgba(127,29,26,0.35) !important;
+        }
+        html.winter-void button.bg-amber-600:hover {
+            box-shadow:
+                0 6px 22px rgba(217,119,6,0.55),
+                0 2px 8px rgba(217,119,6,0.3) !important;
+        }
+
+        /* ── Winter Void: BUY button → green ── */
+        html.winter-void #btnBuy.btn-buy {
+            background: #166534 !important;
+            color: #86efac !important;
+            border: 1px solid #16a34a !important;
+        }
+        html.winter-void #btnBuy.btn-buy:hover {
+            background: #15803d !important;
+            transform: translateY(-3px);
+            box-shadow:
+                0 6px 22px rgba(22,163,74,0.55),
+                0 2px 8px rgba(22,163,74,0.35) !important;
+        }
+
+        /* ── Winter Void: เวลาเข้า/ออก → red glow ── */
+        html.winter-void .btn-time-glow {
+            background: #7F1D1A !important;
+            border: 1px solid rgba(239,68,68,0.4) !important;
+        }
+        html.winter-void .btn-time-glow:hover {
+            background: #9a2420 !important;
+            transform: translateY(-3px);
+            box-shadow:
+                0 6px 22px rgba(239,68,68,0.55),
+                0 2px 8px rgba(239,68,68,0.35) !important;
         }
         /* Select-btn also gets press */
         .select-btn:active {
@@ -184,6 +276,17 @@
         /* make app shell transparent when winter-void so bg shows through */
         html.winter-void body { background-color: #0d0f0f !important; }
         html.winter-void header { position: relative; }
+
+        /* Winter Void mobile: compact header so settings button is fully visible */
+        @media (max-width: 768px) {
+            html.winter-void header { padding: 0 8px !important; }
+            html.winter-void #dashboardControls { gap: 6px !important; }
+            html.winter-void #dashboardControls .flex.items-center.bg-gray-100,
+            html.winter-void #dashboardControls .flex.items-center.dark\:bg-slate-900 {
+                padding: 2px 4px !important;
+            }
+            html.winter-void #globalDate { width: 110px !important; font-size: 12px !important; }
+        }
         html.winter-void main   { background: rgba(14,16,16,0.72) !important; }
 
         /* ── Winter Void: sidebar nav items ── */
@@ -914,25 +1017,25 @@
             <h1 class="text-xl font-bold text-gray-800 dark:text-white hidden sm:block" data-i18n="appTitle">Trading Dashboard</h1>
             <span class="hidden sm:inline text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800">v15</span>
         </div>
-        <div class="flex items-center gap-2 md:gap-3">
+        <div class="flex items-center gap-2 md:gap-3 min-w-0">
             <!-- Connection Badge -->
             <div id="connBadge" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border">
                 <span id="connDot" class="w-2 h-2 rounded-full"></span>
                 <span id="connText">...</span>
             </div>
-            <div id="dashboardControls" class="flex items-center gap-2">
-                <button onclick="loadPageData()" class="p-2 w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-lg transition border border-blue-200 dark:border-blue-800 shadow-sm shrink-0" title="Refresh"><i class="ti ti-refresh btn-icon" style="font-size:18px;"></i></button>
-                <button onclick="toggleSnow()" id="snowToggleBtn" class="p-2 w-10 h-10 hidden items-center justify-center rounded-lg transition border shadow-sm shrink-0 bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700" title="เปิด/ปิด หิมะตก" style="display:none;"><i class="ti ti-snowflake btn-icon" style="font-size:17px;"></i></button>
-                <div class="flex items-center bg-gray-100 dark:bg-slate-900 p-1.5 rounded-lg border border-gray-200 dark:border-slate-600 shadow-inner">
-                    <button onclick="changeDate(-1)" class="hover:bg-white dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded shadow-sm font-bold transition">◀</button>
-                    <div class="flex items-center px-2 md:px-3">
+            <div id="dashboardControls" class="flex items-center gap-1.5 md:gap-2">
+                <button onclick="loadPageData()" class="p-2 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-lg transition border border-blue-200 dark:border-blue-800 shadow-sm shrink-0" title="Refresh"><i class="ti ti-refresh btn-icon" style="font-size:16px;"></i></button>
+                <button onclick="toggleSnow()" id="snowToggleBtn" class="p-2 w-9 h-9 md:w-10 md:h-10 items-center justify-center rounded-lg transition border shadow-sm shrink-0 bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700" title="เปิด/ปิด หิมะตก" style="display:none;"><i class="ti ti-snowflake btn-icon" style="font-size:16px;"></i></button>
+                <div class="flex items-center bg-gray-100 dark:bg-slate-900 p-1 md:p-1.5 rounded-lg border border-gray-200 dark:border-slate-600 shadow-inner">
+                    <button onclick="changeDate(-1)" class="hover:bg-white dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 px-2 md:px-3 py-1 rounded shadow-sm font-bold transition">◀</button>
+                    <div class="flex items-center px-1 md:px-3">
                         <span class="text-sm text-gray-500 dark:text-gray-400 font-medium mr-2 hidden md:inline">วันที่:</span>
-                        <input type="date" id="globalDate" class="input-field border-none bg-transparent w-auto font-bold text-blue-600 dark:text-yellow-400 p-0 text-center text-sm md:text-base focus:ring-0" onchange="loadPageData()">
+                        <input type="date" id="globalDate" class="input-field border-none bg-transparent w-auto font-bold text-blue-600 dark:text-yellow-400 p-0 text-center text-sm focus:ring-0" onchange="loadPageData()">
                     </div>
-                    <button onclick="changeDate(1)" class="hover:bg-white dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded shadow-sm font-bold transition">▶</button>
+                    <button onclick="changeDate(1)" class="hover:bg-white dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 px-2 md:px-3 py-1 rounded shadow-sm font-bold transition">▶</button>
                 </div>
+                <button onclick="toggleSettingsModal()" class="p-2 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-white shadow-sm shrink-0" title="Settings"><i class="ti ti-settings btn-icon" style="font-size:16px;"></i></button>
             </div>
-            <button onclick="toggleSettingsModal()" class="p-2 w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-white shadow-sm shrink-0" title="Settings"><i class="ti ti-settings btn-icon" style="font-size:18px;"></i></button>
         </div>
     </header>
 
@@ -1114,11 +1217,11 @@
                                     <!-- เวลาเข้า/ออก เป็นปุ่มกด -->
                                     <div class="mt-3 grid grid-cols-2 gap-2">
                                         <div class="flex flex-col gap-1">
-                                            <button onclick="setTimeInNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm btn-time-in">🕒 เวลาเข้า</button>
+                                            <button onclick="setTimeInNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm btn-time-in btn-time-glow">🕒 เวลาเข้า</button>
                                             <input type="time" id="timeIn" class="input-field py-1.5 text-xs font-medium text-center" oninput="updateSessionUI()">
                                         </div>
                                         <div class="flex flex-col gap-1">
-                                            <button onclick="setTimeOutNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm btn-time-out">🕒 เวลาออก</button>
+                                            <button onclick="setTimeOutNow()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold py-1 px-2 rounded-md transition shadow-sm btn-time-out btn-time-glow">🕒 เวลาออก</button>
                                             <input type="time" id="timeOut" class="input-field py-1.5 text-xs font-medium text-center">
                                         </div>
                                     </div>
@@ -1128,7 +1231,7 @@
                                 <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="dirLabel">2. Order Direction</label>
                                 <input type="hidden" id="direction" value="BUY">
                                 <div class="flex gap-2">
-                                    <button id="btnBuy" onclick="setDirection('BUY')" class="select-btn bg-blue-600 text-white shadow-md">BUY</button>
+                                    <button id="btnBuy" onclick="setDirection('BUY')" class="select-btn bg-blue-600 text-white shadow-md btn-buy">BUY</button>
                                     <button id="btnSell" onclick="setDirection('SELL')" class="select-btn inactive">SELL</button>
                                 </div>
                             </div>
@@ -2017,7 +2120,7 @@ function setLayout(layout, save=true) {
 // ════════════════════════════════════════════════════════════
 function setDirection(val) {
     document.getElementById('direction').value=val;
-    document.getElementById('btnBuy').className  = val==='BUY'  ? "select-btn bg-blue-600 text-white shadow-md" : "select-btn inactive";
+    document.getElementById('btnBuy').className  = val==='BUY'  ? "select-btn bg-blue-600 text-white shadow-md btn-buy" : "select-btn inactive";
     document.getElementById('btnSell').className = val==='SELL' ? "select-btn bg-red-500 text-white shadow-md"  : "select-btn inactive";
     calculatePrices();
 }
