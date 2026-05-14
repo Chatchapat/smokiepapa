@@ -449,6 +449,17 @@
 
         /* ── 2-row trade table ── */
         .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        /* Responsive table: desktop shows 1-row, mobile shows 2-row */
+        /* Default = desktop, JS will switch based on container width */
+        .trade-row-mobile { display:none !important; }
+        .trade-row-desktop { display:table-row !important; }
+        #theadMobile { display:none !important; }
+        #theadDesktop { display:table-header-group !important; }
+        /* When table-mobile class added to table */
+        #historyTable.table-mobile .trade-row-mobile { display:table-row !important; }
+        #historyTable.table-mobile .trade-row-desktop { display:none !important; }
+        #historyTable.table-mobile #theadMobile { display:table-header-group !important; }
+        #historyTable.table-mobile #theadDesktop { display:none !important; }
 
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
@@ -798,8 +809,24 @@
                             <span id="dailyPnlSummary" class="text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400">Total P&L: $0.00</span>
                         </div>
                         <div class="overflow-x-auto flex-1">
-                            <table class="w-full text-left text-sm" style="table-layout:auto;word-break:break-word" id="historyTable">
-                                <thead class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide">
+                            <table class="w-full text-left text-sm" style="word-break:break-word" id="historyTable">
+                                <!-- Desktop header (≥900px) -->
+                                <thead id="theadDesktop" class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide">
+                                    <tr>
+                                        <th class="px-2 py-3 text-center" style="width:36px">#</th>
+                                        <th class="px-2 py-3" style="width:95px">Time</th>
+                                        <th class="px-2 py-3" style="width:90px">Order</th>
+                                        <th class="px-2 py-3">Setup & Remark</th>
+                                        <th class="px-2 py-3" style="width:88px">Entry/Lot</th>
+                                        <th class="px-2 py-3" style="width:130px">SL/TP</th>
+                                        <th class="px-2 py-3" style="width:56px">P&L</th>
+                                        <th class="px-2 py-3 text-center" style="width:110px">Mood</th>
+                                        <th class="px-2 py-3 text-center" style="width:80px">Capture</th>
+                                        <th class="px-2 py-3 text-center" style="width:110px">Act</th>
+                                    </tr>
+                                </thead>
+                                <!-- Mobile header (<900px) -->
+                                <thead id="theadMobile" class="bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 text-xs uppercase font-semibold tracking-wide" style="display:none">
                                     <tr>
                                         <th class="px-2 py-2 text-center w-8">#</th>
                                         <th class="px-2 py-2 w-20">Time</th>
@@ -808,10 +835,10 @@
                                         <th class="px-2 py-2 w-24">Entry/Lot</th>
                                     </tr>
                                     <tr class="border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/60">
-                                        <th class="px-2 py-1.5 text-center" colspan="1" style="font-size:9px;opacity:0.6;">↓</th>
+                                        <th class="px-2 py-1.5 text-center" colspan="1" style="font-size:9px;opacity:0.5;">↓</th>
                                         <th class="px-2 py-1.5" style="font-size:9px;" colspan="2">SL/TP</th>
-                                        <th class="px-2 py-1.5" style="font-size:9px;">P&L &nbsp;·&nbsp; Mood</th>
-                                        <th class="px-2 py-1.5 text-center" style="font-size:9px;">Capture &nbsp;·&nbsp; Act</th>
+                                        <th class="px-2 py-1.5" style="font-size:9px;">P&L · Mood</th>
+                                        <th class="px-2 py-1.5 text-center" style="font-size:9px;">Capture · Act</th>
                                     </tr>
                                 </thead>
                                 <tbody id="historyBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
@@ -2129,18 +2156,18 @@ function resetFormInputs() {
 async function renderHistory() {
     const sel=document.getElementById('globalDate').value;
     const body=document.getElementById('historyBody');
-    body.innerHTML=`<tr><td colspan="5" class="p-8 text-center text-gray-400">⏳ กำลังโหลดข้อมูล...</td></tr>`;
+    body.innerHTML=`<tr><td colspan="10" class="p-8 text-center text-gray-400">⏳ กำลังโหลดข้อมูล...</td></tr>`;
     let hist=[];
     try {
         const {data,error}=await supabaseClient.from('trades').select('*').eq('date',sel);
         if(error) throw error;
         if(data) hist=data.sort((a,b)=>b.id-a.id);
     } catch(e) {
-        body.innerHTML=`<tr><td colspan="5" class="p-8 text-center text-red-500">❌ ดึงข้อมูลไม่สำเร็จ: ${e.message}</td></tr>`;
+        body.innerHTML=`<tr><td colspan="10" class="p-8 text-center text-red-500">❌ ดึงข้อมูลไม่สำเร็จ: ${e.message}</td></tr>`;
         return;
     }
     if(!hist.length){
-        body.innerHTML=`<tr><td colspan="5" class="p-8 text-center text-gray-400">${i18nDict[currentLang].noData} ${sel}</td></tr>`;
+        body.innerHTML=`<tr><td colspan="10" class="p-8 text-center text-gray-400">${i18nDict[currentLang].noData} ${sel}</td></tr>`;
         const s=document.getElementById('dailyPnlSummary');
         s.innerText='Total P&L: $0.00';
         s.className='text-sm font-bold bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-400';
@@ -2161,37 +2188,55 @@ async function renderHistory() {
             const sessBadge=sess&&sess!=='-'?`<span class="inline-block text-[9px] px-1.5 py-0.5 rounded font-bold border ${getSessionColor(sess)} whitespace-nowrap">${sess}</span>`:'';
             const orderNum=hist.length-idx;
             return `
-            <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-t border-gray-200 dark:border-slate-700">
-                <td class="px-2 pt-3 pb-1 text-xs font-bold text-gray-400 dark:text-gray-500 align-top text-center w-8">#${orderNum}</td>
-                <td class="px-2 pt-3 pb-1 text-xs text-gray-600 dark:text-gray-400 align-top w-20 whitespace-nowrap">
+            <tr class="trade-row-desktop hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-b border-gray-100 dark:border-slate-800/50">
+                <td class="px-2 py-3 text-xs font-bold text-gray-400 dark:text-gray-500 align-top text-center">#${orderNum}</td>
+                <td class="px-2 py-3 text-xs text-gray-600 dark:text-gray-400 align-top whitespace-nowrap">
                     <div class="font-mono leading-snug">${t.timeIn||'-'}</div>
                     <div class="font-mono leading-snug">${t.timeOut||'-'}</div>
                     ${sessBadge?`<div class="mt-1">${sessBadge}</div>`:''}
                 </td>
-                <td class="px-2 pt-3 pb-1 align-top w-20">
-                    <div class="font-bold text-sm ${dirC}">${t.direction||'-'}</div>
-                    <div class="mt-1">${badge}</div>
+                <td class="px-2 py-3 align-top"><div class="font-bold text-sm ${dirC}">${t.direction||'-'}</div><div class="mt-1">${badge}</div></td>
+                <td class="px-2 py-3 align-top"><div class="break-words min-w-0">${t.setup&&t.setup!=='-'?`<div class="text-blue-600 dark:text-blue-400 font-bold text-sm leading-snug">${t.setup}</div>`:'-'}${t.remark?`<div class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-snug line-clamp-3">📝 ${t.remark}</div>`:''}</div></td>
+                <td class="px-2 py-3 align-top"><div class="font-semibold text-sm text-gray-800 dark:text-gray-200">${t.entry||'0'}</div><div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div></td>
+                <td class="px-2 py-3 align-top"><div class="text-xs text-gray-700 dark:text-gray-300"><span class="text-red-500 font-semibold">SL</span> ${t.slPrice||'0'} <span class="text-gray-400">(${t.slPoints||'0'}p)</span></div><div class="text-xs text-gray-700 dark:text-gray-300 mt-1"><span class="text-green-600 font-semibold">TP</span> ${t.tpPrice||'0'} <span class="text-gray-400">(${t.tpPoints||'0'}p)</span></div></td>
+                <td class="px-2 py-3 font-bold text-sm align-top ${pnlC}">${pnl>0?'+':''}${pnl}</td>
+                <td class="px-2 py-3 align-top text-center"><div class="text-center leading-tight">${stars}</div>${t.emotion?`<div class="text-xs text-gray-600 dark:text-gray-300 font-medium break-words">${t.emotion}</div>`:''}${!stars&&!t.emotion?'<div class="text-gray-400">-</div>':''}</td>
+                <td class="px-2 py-3 text-center align-top">${imgEl}</td>
+                <td class="px-2 py-3 text-center align-top">
+                    <div class="flex flex-col gap-1 items-stretch">
+                        <button onclick="editTrade(${t.id})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded-lg text-xs font-bold transition w-full shadow-sm">✏️ Edit</button>
+                        <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold transition w-full">🗑️ ลบ</button>
+                        <div class="flex gap-1">
+                            <button onclick="moveTrade(${t.id},-1)" class="flex-1 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 rounded py-1 text-xs font-bold transition">▲</button>
+                            <button onclick="moveTrade(${t.id},1)" class="flex-1 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 rounded py-1 text-xs font-bold transition">▼</button>
+                        </div>
+                    </div>
                 </td>
+            </tr>
+            <tr class="trade-row-mobile hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-t border-gray-200 dark:border-slate-700" style="display:none">
+                <td class="px-2 pt-3 pb-1 text-xs font-bold text-gray-400 dark:text-gray-500 align-top text-center">#${orderNum}</td>
+                <td class="px-2 pt-3 pb-1 text-xs text-gray-600 dark:text-gray-400 align-top whitespace-nowrap">
+                    <div class="font-mono leading-snug">${t.timeIn||'-'}</div>
+                    <div class="font-mono leading-snug">${t.timeOut||'-'}</div>
+                    ${sessBadge?`<div class="mt-1">${sessBadge}</div>`:''}
+                </td>
+                <td class="px-2 pt-3 pb-1 align-top"><div class="font-bold text-sm ${dirC}">${t.direction||'-'}</div><div class="mt-1">${badge}</div></td>
                 <td class="px-2 pt-3 pb-1 align-top">
                     <div class="min-w-0">
                         ${t.setup&&t.setup!=='-'?`<div class="text-blue-600 dark:text-blue-400 font-bold text-sm leading-snug break-words">${t.setup}</div>`:'-'}
                         ${t.remark?`<div class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-snug break-words line-clamp-3">📝 ${t.remark}</div>`:''}
                     </div>
                 </td>
-                <td class="px-2 pt-3 pb-1 align-top w-24">
+                <td class="px-2 pt-3 pb-1 align-top">
                     <div class="font-semibold text-sm text-gray-800 dark:text-gray-200">${t.entry||'0'}</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div>
                 </td>
             </tr>
-            <tr class="bg-gray-50/60 dark:bg-slate-800/30 border-b border-gray-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50 transition">
+            <tr class="trade-row-mobile bg-gray-50/60 dark:bg-slate-800/30 border-b border-gray-200 dark:border-slate-700" style="display:none">
                 <td class="px-2 pt-1 pb-3 text-center align-top text-gray-300 dark:text-gray-600 text-xs">└</td>
                 <td class="px-2 pt-1 pb-3 align-top" colspan="2">
-                    <div class="text-xs text-gray-700 dark:text-gray-300">
-                        <span class="text-red-500 font-semibold">SL</span> ${t.slPrice||'0'} <span class="text-gray-400">(${t.slPoints||'0'}p)</span>
-                    </div>
-                    <div class="text-xs text-gray-700 dark:text-gray-300 mt-0.5">
-                        <span class="text-green-600 font-semibold">TP</span> ${t.tpPrice||'0'} <span class="text-gray-400">(${t.tpPoints||'0'}p)</span>
-                    </div>
+                    <div class="text-xs text-gray-700 dark:text-gray-300"><span class="text-red-500 font-semibold">SL</span> ${t.slPrice||'0'} <span class="text-gray-400">(${t.slPoints||'0'}p)</span></div>
+                    <div class="text-xs text-gray-700 dark:text-gray-300 mt-0.5"><span class="text-green-600 font-semibold">TP</span> ${t.tpPrice||'0'} <span class="text-gray-400">(${t.tpPoints||'0'}p)</span></div>
                 </td>
                 <td class="px-2 pt-1 pb-3 align-top">
                     <span class="font-bold text-sm ${pnlC}">${pnl>0?'+':''}${pnl}</span>
@@ -2199,7 +2244,7 @@ async function renderHistory() {
                 </td>
                 <td class="px-2 pt-1 pb-3 align-top">
                     <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-1 mb-1">${imgEl}</div>
+                        <div class="mb-1">${imgEl}</div>
                         <button onclick="editTrade(${t.id})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded-lg text-xs font-bold transition w-full shadow-sm">✏️ Edit</button>
                         <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold transition w-full">🗑️ ลบ</button>
                         <div class="flex gap-1">
@@ -2210,18 +2255,20 @@ async function renderHistory() {
                 </td>
             </tr>`;
         } catch(e) {
-            return `<tr><td colspan="5" class="p-3 text-center text-red-500 text-xs bg-red-50">⚠️ แสดงผลแถวนี้ไม่ได้ (ID:${t.id})</td></tr>`;
+            return `<tr><td colspan="10" class="p-3 text-center text-red-500 text-xs bg-red-50">⚠️ แสดงผลแถวนี้ไม่ได้ (ID:${t.id})</td></tr>`;
         }
     }).join('');
 
     const s=document.getElementById('dailyPnlSummary');
     s.innerText=`Total P&L: ${total>0?'+':''}$${total.toFixed(2)}`;
     s.className=`text-sm font-bold px-3 py-1 rounded-lg border ${total>0?'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800':total<0?'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800':'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700'}`;
+    // Re-check responsive layout after DOM update
+    requestAnimationFrame(() => { if (window._checkTableLayout) window._checkTableLayout(); });
 }
 
 async function moveTrade(id, dir) {
     const body=document.getElementById('historyBody');
-    body.innerHTML=`<tr><td colspan="5" class="p-8 text-center text-gray-400">⏳ กำลังสลับตำแหน่ง...</td></tr>`;
+    body.innerHTML=`<tr><td colspan="10" class="p-8 text-center text-gray-400">⏳ กำลังสลับตำแหน่ง...</td></tr>`;
     const ds=document.getElementById('globalDate').value;
     const {data:hist}=await supabaseClient.from('trades').select('*').eq('date',ds);
     if(!hist){renderHistory();return;}
@@ -3277,6 +3324,29 @@ async function deletePlaybook(id) {
     showToast('ลบ Setup แล้ว', 'info');
     loadPlaybookPage();
 }
+
+/* ── Responsive Trade Table: auto-switch desktop ↔ mobile layout ── */
+(function() {
+    const BREAKPOINT = 860;
+    function applyTableLayout() {
+        const table = document.getElementById('historyTable');
+        if (!table) return;
+        const container = table.closest('.overflow-x-auto') || table.parentElement;
+        const width = container ? container.offsetWidth : window.innerWidth;
+        table.classList.toggle('table-mobile', width < BREAKPOINT);
+    }
+    window.addEventListener('resize', applyTableLayout);
+    const ro = new ResizeObserver(applyTableLayout);
+    function init() {
+        const table = document.getElementById('historyTable');
+        if (!table) return;
+        const container = table.closest('.overflow-x-auto') || table.parentElement;
+        if (container) ro.observe(container);
+        applyTableLayout();
+    }
+    window.addEventListener('load', init);
+    window._checkTableLayout = applyTableLayout;
+})();
 </script>
 </body>
 </html>
