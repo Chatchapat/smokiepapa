@@ -451,6 +451,29 @@
         .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 
+        /* Light theme: mobile trade cards should use light colors */
+        .trade-card-mobile {
+            background: #1e293b;   /* dark default */
+            border: 1px solid rgba(100,116,139,0.3);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        /* Override for light mode */
+        :not(.dark) .trade-card-mobile {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+        }
+        :not(.dark) .trade-card-mobile .tc-body {
+            border-top-color: #e5e7eb !important;
+        }
+        :not(.dark) .trade-card-mobile [style*="color:var(--text-primary"] { color: #1e293b !important; }
+        :not(.dark) .trade-card-mobile [style*="color:var(--text-secondary"] { color: #64748b !important; }
+        :not(.dark) .trade-card-mobile [style*="color:var(--text-muted"] { color: #94a3b8 !important; }
+        :not(.dark) .trade-card-mobile [style*="color:#60a5fa"] { color: #2563eb !important; }
+        /* Light mode inline style overrides for the card */
+        :not(.dark) #historyTable.table-mobile .trade-card-mobile * { color: inherit; }
+        :not(.dark) #historyTable.table-mobile { background: transparent !important; }
+
         /* Desktop: table, Mobile: card list */
         .trade-row-mobile  { display:none !important; }
         .trade-row-desktop { display:table-row !important; }
@@ -478,7 +501,10 @@
         }
         #historyTable.table-mobile .tc-body {
             padding: 8px 12px 10px;
-            border-top: 1px solid var(--border-card, rgba(100,116,139,0.2));
+            border-top: 1px solid #e5e7eb;
+        }
+        .dark #historyTable.table-mobile .tc-body {
+            border-top-color: rgba(100,116,139,0.2);
         }
         #historyTable.table-mobile .tc-grid {
             display: grid;
@@ -523,8 +549,16 @@
 
             /* ── Item 4: Form above history on mobile ── */
             #mainLayout { flex-direction: column !important; }
-            #leftColMain  { order: 2 !important; }
-            #formColMain  { order: 1 !important; }
+            #leftColMain  { order: 2 !important; min-width: 0; width: 100% !important; }
+            #formColMain  { order: 1 !important; min-width: 0; width: 100% !important; max-width: 100% !important; }
+            /* Prevent form card from overflowing on narrow screens */
+            #formSection { position: static !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+            /* Fix input fields overflow */
+            .input-field, textarea, select { max-width: 100% !important; box-sizing: border-box !important; }
+            /* Fix grid-2 in form */
+            .grid.grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
+            /* Snow flakes behind content, not causing scroll */
+            .wv-snowflake { pointer-events: none !important; }
         }
             .card { border-radius: 10px; }
             header { padding: 0 12px; }
@@ -1346,7 +1380,15 @@ function showToast(msg, type = 'info', duration = 4000) {
 //  Supabase Setup
 // ════════════════════════════════════════════════════════════
 function getCreds() { try { return JSON.parse(localStorage.getItem('sb_creds')||'null'); } catch { return null; } }
-function saveCreds(url, key) { localStorage.setItem('sb_creds', JSON.stringify({url, key})); }
+function saveCreds(url, key) {
+    localStorage.setItem('sb_creds', JSON.stringify({url, key}));
+    // Also save to sessionStorage as backup for same-session reloads
+    try { sessionStorage.setItem('sb_creds_session', JSON.stringify({url, key})); } catch(e){}
+}
+function getCredsAny() {
+    // Try localStorage first, then sessionStorage as fallback
+    return getCreds() || (() => { try { return JSON.parse(sessionStorage.getItem('sb_creds_session')||'null'); } catch { return null; } })();
+}
 
 function setConnectionStatus(status) {
     const badge = document.getElementById('connBadge');
@@ -1390,7 +1432,10 @@ async function connectSupabase() {
         const ck = url + '|' + key;
         if (!supabaseClient || _credKey !== ck) {
             supabaseClient = supabase.createClient(url, key, {
-                auth: { persistSession: true, storageKey: 'tj-auth-v11' }
+                auth: {
+                    persistSession: false,
+                    autoRefreshToken: false,
+                }
             });
             _credKey = ck;
         }
@@ -1449,16 +1494,21 @@ window.onload = async function() {
 
     loadSettings(); // load theme before showing anything
 
-    // Try saved creds first, fallback to prompt
-    const creds = getCreds();
+    // Try saved creds first — use getCredsAny to check both localStorage + sessionStorage
+    const creds = getCredsAny();
     if (creds?.url && creds?.key) {
-        // มี credentials แล้ว — สร้าง client และ boot เลย ไม่ต้องผ่าน connectSupabase()
+        // มี credentials แล้ว — สร้าง client ใหม่ทุกครั้งที่โหลด (ไม่พึ่ง auth session ที่อาจหมดอายุ)
         try {
             setConnectionStatus('loading');
             supabaseClient = supabase.createClient(creds.url, creds.key, {
-                auth: { persistSession: true, storageKey: 'tj-auth-v11' }
+                auth: {
+                    persistSession: false,   // ไม่พึ่ง auth session — ใช้ anon key โดยตรงทุกครั้ง
+                    autoRefreshToken: false,
+                }
             });
             _credKey = creds.url + '|' + creds.key;
+            // Ensure creds stay saved in both storages
+            saveCreds(creds.url, creds.key);
             // hide setupScreen ก่อนแน่ๆ
             const ss = document.getElementById('setupScreen');
             ss.classList.add('hidden');
@@ -2266,14 +2316,14 @@ async function renderHistory() {
                 </td>
             </tr>
             <tr class="trade-row-mobile" style="display:none">
-                <td style="padding:0;border:none;">
+                <td style="padding:0;border:none;width:100%">
                     <div class="trade-card-mobile">
                         <!-- Card Head -->
                         <div class="tc-head">
                             <div style="flex:1;min-width:0;">
                                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
-                                    <span style="font-size:11px;font-weight:600;color:var(--text-muted,#94a3b8);">#${orderNum}</span>
-                                    <span style="font-size:11px;color:var(--text-muted,#94a3b8);font-family:monospace;">${t.timeIn||'-'}${t.timeOut?'–'+t.timeOut:''}</span>
+                                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">#${orderNum}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">${t.timeIn||'-'}${t.timeOut?'–'+t.timeOut:''}</span>
                                     ${sessBadge}
                                 </div>
                                 <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
@@ -2284,37 +2334,40 @@ async function renderHistory() {
                                 </div>
                             </div>
                             <div style="text-align:right;flex-shrink:0;margin-left:10px;">
-                                <div style="font-size:14px;font-weight:600;color:var(--text-primary,#f1f5f9);">${t.entry||'0'}</div>
-                                <div style="font-size:11px;color:var(--text-muted,#94a3b8);">${t.lot||'0'} Lot</div>
+                                <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">${t.entry||'0'}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div>
                             </div>
                         </div>
                         <!-- Card Body -->
                         <div class="tc-body">
-                            ${t.setup&&t.setup!=='-'?`<div style="font-size:13px;font-weight:700;color:#60a5fa;margin-bottom:3px;">${t.setup}</div>`:''}
-                            ${t.remark?`<div style="font-size:11px;color:var(--text-secondary,#94a3b8);line-height:1.5;margin-bottom:8px;" class="line-clamp-2">📝 ${t.remark}</div>`:'<div style="margin-bottom:6px;"></div>'}
-                            <!-- SL/TP · P&L · Mood grid -->
+                            ${t.setup&&t.setup!=='-'?`<div class="text-sm font-bold text-blue-600 dark:text-blue-400 mb-1">${t.setup}</div>`:''}
+                            ${t.remark?`<div class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-2 line-clamp-2">📝 ${t.remark}</div>`:'<div style="margin-bottom:6px;"></div>'}
+                            <!-- SL/TP · Mood grid -->
                             <div class="tc-grid">
                                 <div>
-                                    <div style="font-size:10px;color:var(--text-muted,#64748b);margin-bottom:2px;">SL / TP</div>
-                                    <div style="font-size:11px;color:var(--text-secondary,#94a3b8);"><span style="color:#ef4444;font-weight:600;">SL</span> ${t.slPrice||'0'}<br><span style="color:#22c55e;font-weight:600;">TP</span> ${t.tpPrice||'0'}</div>
+                                    <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">SL / TP</div>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300">
+                                        <span class="text-red-500 font-semibold">SL</span> ${t.slPrice||'0'}<br>
+                                        <span class="text-green-600 font-semibold">TP</span> ${t.tpPrice||'0'}
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style="font-size:10px;color:var(--text-muted,#64748b);margin-bottom:2px;">(pts)</div>
-                                    <div style="font-size:11px;color:var(--text-secondary,#94a3b8);">${t.slPoints||'0'}p<br>${t.tpPoints||'0'}p</div>
+                                    <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">(pts)</div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">${t.slPoints||'0'}p<br>${t.tpPoints||'0'}p</div>
                                 </div>
                                 <div>
-                                    <div style="font-size:10px;color:var(--text-muted,#64748b);margin-bottom:2px;">อารมณ์</div>
-                                    <div style="font-size:11px;color:var(--text-secondary,#94a3b8);">${t.emotion||'-'}</div>
+                                    <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">อารมณ์</div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">${t.emotion||'-'}</div>
                                 </div>
                             </div>
                             <!-- Actions -->
                             <div class="tc-act">
                                 ${imgs.length?`<div style="flex-shrink:0;">${imgEl}</div>`:''}
-                                <button onclick="editTrade(${t.id})" style="flex:1;background:#d97706;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;padding:6px 10px;cursor:pointer;">✏️ Edit</button>
-                                <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" style="flex:1;background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:7px;font-size:12px;font-weight:600;padding:6px 10px;cursor:pointer;">🗑️ ลบ</button>
+                                <button onclick="editTrade(${t.id})" class="bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition shadow-sm" style="flex:1;padding:6px 10px;border:none;cursor:pointer;">✏️ Edit</button>
+                                <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" class="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold transition" style="flex:1;padding:6px 10px;cursor:pointer;">🗑️ ลบ</button>
                                 <div style="display:flex;gap:4px;">
-                                    <button onclick="moveTrade(${t.id},-1)" style="background:rgba(100,116,139,0.2);color:var(--text-secondary,#94a3b8);border:1px solid rgba(100,116,139,0.2);border-radius:6px;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;">▲</button>
-                                    <button onclick="moveTrade(${t.id},1)"  style="background:rgba(100,116,139,0.2);color:var(--text-secondary,#94a3b8);border:1px solid rgba(100,116,139,0.2);border-radius:6px;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;">▼</button>
+                                    <button onclick="moveTrade(${t.id},-1)" class="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded font-bold transition" style="padding:6px 9px;font-size:11px;cursor:pointer;">▲</button>
+                                    <button onclick="moveTrade(${t.id},1)"  class="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded font-bold transition" style="padding:6px 9px;font-size:11px;cursor:pointer;">▼</button>
                                 </div>
                             </div>
                         </div>
