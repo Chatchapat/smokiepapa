@@ -29,9 +29,95 @@
         /* Nav icons animate on hover */
         .nav-icon-wrap { transition: transform 0.2s ease; display:inline-block; }
         .nav-item:hover .nav-icon-wrap { transform: scale(1.2); }
-        /* Button icons */
+
+        /* ── Fix 2: Specific icon animations ── */
+        /* Pencil: writing motion */
+        button:hover .ti-pencil { animation: icon-write 0.4s ease infinite alternate; }
+        @keyframes icon-write {
+            0%   { transform: rotate(-8deg) translate(-1px, 1px); }
+            100% { transform: rotate(5deg)  translate(1px, -1px); }
+        }
+        /* Trash: shake */
+        button:hover .ti-trash { animation: icon-shake 0.35s ease; }
+        @keyframes icon-shake {
+            0%,100% { transform: rotate(0); }
+            25%     { transform: rotate(-10deg); }
+            75%     { transform: rotate(10deg); }
+        }
+        /* Refresh: spin */
+        button:hover .ti-refresh { animation: icon-spin 0.5s linear; }
+        @keyframes icon-spin { to { transform: rotate(360deg); } }
+        /* Floppy: bounce */
+        button:hover .ti-device-floppy { animation: icon-bounce 0.3s ease; }
+        @keyframes icon-bounce {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-4px); }
+        }
+        /* Settings: slow spin */
+        button:hover .ti-settings { animation: icon-spin 0.6s linear; }
+        /* Rocket: thrust up */
+        button:hover .ti-rocket { animation: icon-thrust 0.4s ease; }
+        @keyframes icon-thrust {
+            0%   { transform: translate(0,0) rotate(0); }
+            50%  { transform: translate(2px,-4px) rotate(10deg); }
+            100% { transform: translate(0,0) rotate(0); }
+        }
+        /* Snowflake: spin */
+        button:hover .ti-snowflake { animation: icon-spin 0.6s linear; }
+        /* Target: pulse */
+        button:hover .ti-target { animation: icon-pulse 0.4s ease; }
+        @keyframes icon-pulse {
+            0%,100% { transform: scale(1); }
+            50%     { transform: scale(1.3); }
+        }
+        /* Calendar: pop */
+        button:hover .ti-calendar-stats, button:hover .ti-calendar-week { animation: icon-pop 0.3s ease; }
+        @keyframes icon-pop {
+            0%   { transform: scale(1) rotate(0); }
+            60%  { transform: scale(1.25) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        /* Key: wiggle */
+        button:hover .ti-key { animation: icon-shake 0.35s ease; }
+        /* Upload/download: slide */
+        button:hover .ti-upload { animation: icon-up 0.35s ease; }
+        button:hover .ti-download { animation: icon-down 0.35s ease; }
+        @keyframes icon-up   { 50% { transform: translateY(-3px); } }
+        @keyframes icon-down { 50% { transform: translateY(3px); } }
+        /* Notebook: flip */
+        .nav-item:hover .ti-notebook { animation: icon-flip 0.4s ease; }
+        @keyframes icon-flip {
+            0%,100% { transform: rotateY(0); }
+            50%     { transform: rotateY(25deg); }
+        }
+        /* Link/cloud: float */
+        button:hover .ti-brand-google-drive { animation: icon-bounce 0.4s ease; }
+
+        /* ── Fix 6: Universal button press animation ── */
+        button {
+            transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+        }
+        button:active {
+            transform: translateY(2px) scale(0.97) !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+        }
+        /* Select-btn also gets press */
+        .select-btn:active {
+            transform: translateY(2px) scale(0.97) !important;
+        }
+        /* Nav item hover lift */
+        .nav-item {
+            transition: all 0.15s ease !important;
+        }
+        .nav-item:hover {
+            transform: translateX(3px);
+        }
+        .nav-item.active {
+            transform: none;
+        }
+
+        /* btn-icon generic (fallback) */
         .btn-icon { transition: transform 0.15s ease; display:inline-block; }
-        button:hover .btn-icon { transform: scale(1.2) rotate(-5deg); }
     </style>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
@@ -476,26 +562,19 @@
 
         /* Light theme: mobile trade cards should use light colors */
         .trade-card-mobile {
-            background: #1e293b;   /* dark default */
-            border: 1px solid rgba(100,116,139,0.3);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
             border-radius: 12px;
             overflow: hidden;
         }
-        /* Override for light mode */
-        :not(.dark) .trade-card-mobile {
-            background: #ffffff !important;
-            border: 1px solid #e5e7eb !important;
+        /* Dark mode */
+        .dark .trade-card-mobile {
+            background: #1e293b !important;
+            border-color: rgba(100,116,139,0.3) !important;
         }
-        :not(.dark) .trade-card-mobile .tc-body {
-            border-top-color: #e5e7eb !important;
+        .dark .trade-card-mobile .tc-body {
+            border-top-color: rgba(100,116,139,0.2) !important;
         }
-        :not(.dark) .trade-card-mobile [style*="color:var(--text-primary"] { color: #1e293b !important; }
-        :not(.dark) .trade-card-mobile [style*="color:var(--text-secondary"] { color: #64748b !important; }
-        :not(.dark) .trade-card-mobile [style*="color:var(--text-muted"] { color: #94a3b8 !important; }
-        :not(.dark) .trade-card-mobile [style*="color:#60a5fa"] { color: #2563eb !important; }
-        /* Light mode inline style overrides for the card */
-        :not(.dark) #historyTable.table-mobile .trade-card-mobile * { color: inherit; }
-        :not(.dark) #historyTable.table-mobile { background: transparent !important; }
 
         /* Desktop: table, Mobile: card list */
         .trade-row-mobile  { display:none !important; }
@@ -585,6 +664,13 @@
             /* prevent snow from causing horizontal scroll */
             #wvSnowContainer { overflow: hidden; max-width: 100vw; }
             body { overflow-x: hidden !important; }
+            /* Fix Winter Void mobile: ensure content fills width properly */
+            html.winter-void .card { max-width: 100% !important; box-sizing: border-box !important; }
+            /* Fix main wrapper to not be pushed by bg canvas */
+            .flex.h-screen { max-width: 100vw !important; overflow-x: hidden !important; }
+            /* Ensure flex children don't overflow */
+            main > * { max-width: 100% !important; box-sizing: border-box !important; }
+            .max-w-\\[1400px\\] { max-width: 100% !important; padding: 0 !important; }
         }
             .card { border-radius: 10px; }
             header { padding: 0 12px; }
@@ -984,19 +1070,19 @@
                                             <div class="space-y-1 w-full" id="sessionBar">
                                                 <div id="sessSyd" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold sess-name" style="color:#f97316;min-width:58px;text-align:left">Sydney</span>
-                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeSyd">5AM–2PM</span>
+                                                    <span class="font-mono text-xs font-bold text-gray-700 dark:text-white whitespace-nowrap" id="timeSyd">5AM–2PM</span>
                                                 </div>
                                                 <div id="sessTok" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold sess-name" style="color:#ec4899;min-width:58px;text-align:left">Tokyo</span>
-                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeTok">7AM–4PM</span>
+                                                    <span class="font-mono text-xs font-bold text-gray-700 dark:text-white whitespace-nowrap" id="timeTok">7AM–4PM</span>
                                                 </div>
                                                 <div id="sessLon" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold sess-name" style="color:#3b82f6;min-width:58px;text-align:left">London</span>
-                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeLon">2PM–11PM</span>
+                                                    <span class="font-mono text-xs font-bold text-gray-700 dark:text-white whitespace-nowrap" id="timeLon">2PM–11PM</span>
                                                 </div>
                                                 <div id="sessNy" class="flex items-center justify-between gap-2 px-2 py-0.5 rounded-lg border transition-all bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-slate-400 border-transparent">
                                                     <span class="text-xs font-bold sess-name" style="color:#22c55e;min-width:58px;text-align:left">New York</span>
-                                                    <span class="font-mono text-xs font-bold text-white whitespace-nowrap" id="timeNy">7PM–4AM</span>
+                                                    <span class="font-mono text-xs font-bold text-gray-700 dark:text-white whitespace-nowrap" id="timeNy">7PM–4AM</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1053,8 +1139,8 @@
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
-                                <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="number" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="0" step="any"></div>
-                                <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1" data-i18n="ddLabel">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="จุด" step="any"></div>
+                                <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="number" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="P&L ($)" step="any"></div>
+                                <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1" data-i18n="ddLabel">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="ระบุจุด" step="any"></div>
                             </div>
                             <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="remarkLabel">11. บันทึกจุดสังเกต</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
                             <div class="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
