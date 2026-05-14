@@ -1517,13 +1517,34 @@ function showToast(msg, type = 'info', duration = 4000) {
 // ════════════════════════════════════════════════════════════
 function getCreds() { try { return JSON.parse(localStorage.getItem('sb_creds')||'null'); } catch { return null; } }
 function saveCreds(url, key) {
-    localStorage.setItem('sb_creds', JSON.stringify({url, key}));
-    // Also save to sessionStorage as backup for same-session reloads
-    try { sessionStorage.setItem('sb_creds_session', JSON.stringify({url, key})); } catch(e){}
+    const data = JSON.stringify({url, key});
+    // Save to multiple storages for maximum persistence
+    try { localStorage.setItem('sb_creds', data); } catch(e){}
+    try { sessionStorage.setItem('sb_creds_session', data); } catch(e){}
+    // Cookie fallback — expires 365 days, works even if localStorage is cleared
+    try {
+        const exp = new Date(); exp.setFullYear(exp.getFullYear()+1);
+        document.cookie = `sb_creds=${encodeURIComponent(data)};expires=${exp.toUTCString()};path=/;SameSite=Strict`;
+    } catch(e){}
 }
 function getCredsAny() {
-    // Try localStorage first, then sessionStorage as fallback
-    return getCreds() || (() => { try { return JSON.parse(sessionStorage.getItem('sb_creds_session')||'null'); } catch { return null; } })();
+    // 1. Try localStorage
+    const ls = getCreds();
+    if (ls?.url && ls?.key) return ls;
+    // 2. Try sessionStorage
+    try {
+        const ss = JSON.parse(sessionStorage.getItem('sb_creds_session')||'null');
+        if (ss?.url && ss?.key) { saveCreds(ss.url, ss.key); return ss; }
+    } catch(e){}
+    // 3. Try cookie fallback
+    try {
+        const match = document.cookie.match(/sb_creds=([^;]+)/);
+        if (match) {
+            const ck = JSON.parse(decodeURIComponent(match[1]));
+            if (ck?.url && ck?.key) { saveCreds(ck.url, ck.key); return ck; }
+        }
+    } catch(e){}
+    return null;
 }
 
 function setConnectionStatus(status) {
