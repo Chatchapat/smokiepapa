@@ -176,16 +176,15 @@
 
         /* ── Pine background canvas ── */
         #wvBgCanvas {
-            position: fixed; inset: 0; z-index: 1;
+            position: fixed; inset: 0; z-index: 0;
             pointer-events: none; overflow: hidden;
         }
         #wvBgCanvas svg { width:100%; height:100%; position:absolute; top:0; left:0; }
 
         /* make app shell transparent when winter-void so bg shows through */
         html.winter-void body { background-color: #0d0f0f !important; }
-        html.winter-void > body > .flex { position: relative; z-index: 2; }
-        html.winter-void header     { position: relative; z-index: 32 !important; }
-        html.winter-void main       { background: rgba(14,16,16,0.72) !important; }
+        html.winter-void header { position: relative; }
+        html.winter-void main   { background: rgba(14,16,16,0.72) !important; }
 
         /* ── Winter Void: sidebar nav items ── */
         html.winter-void .nav-item {
@@ -221,15 +220,20 @@
         html.winter-void #globalDate { color: var(--wv-equil) !important; }
         html.winter-void .input-field[type="date"] { color-scheme: dark; }
 
-        /* ── Winter Void: main area ── */
+        /* ── Winter Void: main area & sidebar ── */
         html.winter-void main {
             background: rgba(14,16,16,0.70) !important;
         }
-
-        /* ── Winter Void: sidebar – keep dark so it's legible but slightly transparent ── */
         html.winter-void #sidebar {
             background: rgba(10,12,12,0.90) !important;
             border-right: 1px solid rgba(164,159,157,0.08) !important;
+        }
+        /* Fix note text wrapping */
+        html.winter-void #dailyNote {
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            width: 100% !important;
+            min-width: 0 !important;
         }
 
         /* ── Winter Void: cards ── */
@@ -563,14 +567,19 @@
         /* Light theme: mobile trade cards should use light colors */
         .trade-card-mobile {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             overflow: hidden;
+            color: #1e293b;
+        }
+        .trade-card-mobile .tc-body {
+            border-top: 1px solid #e2e8f0;
         }
         /* Dark mode */
         .dark .trade-card-mobile {
             background: #1e293b !important;
             border-color: rgba(100,116,139,0.3) !important;
+            color: #f1f5f9 !important;
         }
         .dark .trade-card-mobile .tc-body {
             border-top-color: rgba(100,116,139,0.2) !important;
@@ -583,7 +592,7 @@
         #theadDesktop { display:table-header-group !important; }
 
         /* Card mode — activated when JS adds .table-mobile to #historyTable */
-        #historyTable.table-mobile { display:block !important; border:none !important; background:transparent !important; }
+        #historyTable.table-mobile { display:block !important; border:none !important; background:transparent !important; color:inherit !important; }
         #historyTable.table-mobile thead { display:none !important; }
         #historyTable.table-mobile tbody { display:flex; flex-direction:column; gap:10px; }
         #historyTable.table-mobile .trade-row-desktop { display:none !important; }
@@ -664,13 +673,17 @@
             /* prevent snow from causing horizontal scroll */
             #wvSnowContainer { overflow: hidden; max-width: 100vw; }
             body { overflow-x: hidden !important; }
-            /* Fix Winter Void mobile: ensure content fills width properly */
-            html.winter-void .card { max-width: 100% !important; box-sizing: border-box !important; }
-            /* Fix main wrapper to not be pushed by bg canvas */
-            .flex.h-screen { max-width: 100vw !important; overflow-x: hidden !important; }
-            /* Ensure flex children don't overflow */
-            main > * { max-width: 100% !important; box-sizing: border-box !important; }
-            .max-w-\\[1400px\\] { max-width: 100% !important; padding: 0 !important; }
+            /* Fix 3: Content fills full width on mobile - no centering gap */
+            .max-w-\[1400px\] { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+            #page-dashboard, #page-calendar, #page-playbook { padding: 10px !important; }
+            /* Weekly calendar 2 cards fill full width */
+            #weeklyCalendar.grid { grid-template-columns: 1fr 1fr !important; }
+            /* Fix 4: Winter Void - note section text not wrapping into columns */
+            html.winter-void #dailyNote, html.winter-void .card { word-break: break-word !important; overflow-wrap: break-word !important; }
+            html.winter-void main { width: 100% !important; max-width: 100vw !important; overflow-x: hidden !important; }
+            html.winter-void #page-dashboard { overflow-x: hidden !important; }
+            /* Ensure left/right col fill properly */
+            html.winter-void #leftColMain, html.winter-void #formColMain { width: 100% !important; min-width: 0 !important; }
         }
             .card { border-radius: 10px; }
             header { padding: 0 12px; }
@@ -998,8 +1011,8 @@
                             </div>
                         </div>
                         <div class="border border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-3 bg-gray-50 dark:bg-slate-800/50">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400" data-i18n="noteImageLabel"><i class="ti ti-photo" style="font-size:13px;vertical-align:-1px;margin-right:3px;"></i>ภาพประกอบ (<span id="noteImgCount">0</span>/10)</label>
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+                                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 whitespace-nowrap" data-i18n="noteImageLabel"><i class="ti ti-photo" style="font-size:13px;vertical-align:-1px;margin-right:3px;"></i>ภาพประกอบ (<span id="noteImgCount">0</span>/10)</label>
                                 <input type="file" id="noteImageInput" multiple accept="image/*" class="text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-purple-100 file:text-purple-700 dark:file:bg-slate-700 dark:file:text-white cursor-pointer" onchange="handleFileInput(event, currentNoteImages, renderNoteImagePreviews)">
                             </div>
                             <div id="noteImagePreviewContainer" class="img-preview-grid min-h-[50px]">
@@ -1129,18 +1142,18 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <div class="flex justify-between items-end mb-1"><label class="block text-xs font-semibold text-red-500 dark:text-red-400" data-i18n="slLabel">7. SL</label><button onclick="toggleSLMode()" id="slModeBtn" class="text-[9px] bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 px-1.5 py-0.5 rounded font-bold border border-red-200 dark:border-red-800">แบบ Pts</button></div>
-                                    <input type="number" id="slInput" class="input-field py-2 text-sm" placeholder="ระบุจุด (Pts)" oninput="calculatePrices()" step="any">
+                                    <input type="text" inputmode="decimal" id="slInput" class="input-field py-2 text-sm" placeholder="0" oninput="calculatePrices()">
                                     <div id="slDisplay" data-price="0.00" data-pts="0" class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 pl-1 font-medium">Price: 0.00</div>
                                 </div>
                                 <div>
                                     <div class="flex justify-between items-end mb-1"><label class="block text-xs font-semibold text-green-600 dark:text-green-400" data-i18n="tpLabel">8. TP</label><button onclick="toggleTPMode()" id="tpModeBtn" class="text-[9px] bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded font-bold border border-green-200 dark:border-green-800">แบบ Pts</button></div>
-                                    <input type="number" id="tpInput" class="input-field py-2 text-sm" placeholder="ระบุจุด (Pts)" oninput="calculatePrices()" step="any">
+                                    <input type="text" inputmode="decimal" id="tpInput" class="input-field py-2 text-sm" placeholder="0" oninput="calculatePrices()">
                                     <div id="tpDisplay" data-price="0.00" data-pts="0" class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 pl-1 font-medium">Price: 0.00</div>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
-                                <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="number" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="P&L ($)" step="any"></div>
-                                <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1" data-i18n="ddLabel">10. Drawdown (Pts)</label><input type="number" id="ddPoints" class="input-field py-2 text-sm" placeholder="ระบุจุด" step="any"></div>
+                                <div><label class="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">9. P&L ($)</label><input type="text" inputmode="decimal" id="pnl" class="input-field py-2 text-sm font-bold" placeholder="0"></div>
+                                <div><label class="block text-xs font-semibold text-orange-500 dark:text-orange-400 mb-1" data-i18n="ddLabel">10. Drawdown (Pts)</label><input type="text" inputmode="decimal" id="ddPoints" class="input-field py-2 text-sm" placeholder="0"></div>
                             </div>
                             <div><label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="remarkLabel">11. บันทึกจุดสังเกต</label><textarea id="tradeRemark" class="input-field auto-resize py-2 text-sm min-h-[40px]" placeholder="ข้อสังเกตเพิ่มเติม..." oninput="resizeTextarea(this)"></textarea></div>
                             <div class="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
@@ -1665,13 +1678,13 @@ function insertEmoji(e) { document.execCommand('insertText', false, e); document
 function toggleSLMode() {
     inputModeSL = inputModeSL==='pts'?'price':'pts';
     document.getElementById('slModeBtn').innerText = inputModeSL==='pts' ? i18nDict[currentLang].modePts : i18nDict[currentLang].modePrice;
-    document.getElementById('slInput').placeholder = inputModeSL==='pts' ? 'ระบุจุด (Pts)' : 'ระบุราคา';
+    document.getElementById('slInput').placeholder = '0';
     calculatePrices();
 }
 function toggleTPMode() {
     inputModeTP = inputModeTP==='pts'?'price':'pts';
     document.getElementById('tpModeBtn').innerText = inputModeTP==='pts' ? i18nDict[currentLang].modePts : i18nDict[currentLang].modePrice;
-    document.getElementById('tpInput').placeholder = inputModeTP==='pts' ? 'ระบุจุด (Pts)' : 'ระบุราคา';
+    document.getElementById('tpInput').placeholder = '0';
     calculatePrices();
 }
 
@@ -1705,7 +1718,7 @@ function calculatePrices() {
     let pnl=0;
     if (res==='WIN') pnl=parseFloat(tpPts)*lot;
     else if (res==='LOSS') pnl=-(parseFloat(slPts)*lot);
-    document.getElementById('pnl').value = pnl!==0?pnl.toFixed(2):'0';
+    document.getElementById('pnl').value = pnl!==0?pnl.toFixed(2):'';
 }
 
 // ════════════════════════════════════════════════════════════
