@@ -696,6 +696,11 @@
         html.winter-void .trade-card-mobile .tc-body {
             border-top-color: rgba(164,159,157,0.12) !important;
         }
+        /* Info strip dark bg for all themes */
+        html.winter-void .trade-card-mobile [style*="background:rgba(0,0,0,0.04)"] {
+            background: rgba(255,255,255,0.04) !important;
+            border-top-color: rgba(164,159,157,0.1) !important;
+        }
 
         /* Desktop: table, Mobile: card list */
         .trade-row-mobile  { display:none !important; }
@@ -2577,58 +2582,46 @@ async function renderHistory() {
             </tr>
             <tr class="trade-row-mobile" style="display:none">
                 <td style="padding:0;border:none;width:100%">
-                    <div class="trade-card-mobile">
-                        <!-- Card Head -->
-                        <div class="tc-head">
+                    <div class="trade-card-mobile" style="border-left:3px solid ${t.result==='WIN'?'#16a34a':t.result==='LOSS'?'#dc2626':t.result==='BE'?'#d97706':'#6b7280'};border-radius:0 12px 12px 0;">
+                        <!-- Head: pill row -->
+                        <div class="tc-head" style="padding:10px 12px 6px;">
                             <div style="flex:1;min-width:0;">
-                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
+                                <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px;">
                                     <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">#${orderNum}</span>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">${t.timeIn||'-'}${t.timeOut?'–'+t.timeOut:''}</span>
+                                    <span style="font-weight:700;font-size:13px;" class="${dirC}">${t.direction||'-'}</span>
+                                    ${badge}
                                     ${sessBadge}
                                 </div>
-                                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
-                                    <span style="font-weight:700;font-size:14px;" class="${dirC}">${t.direction||'-'}</span>
-                                    ${badge}
-                                    <span style="font-weight:700;font-size:13px;" class="${pnlC}">${pnl>0?'+':''}${pnl}</span>
-                                    ${t.confidence>0?`<span style="color:#f59e0b;font-size:13px;letter-spacing:1px;">${'★'.repeat(t.confidence)}</span>`:''}
-                                </div>
-                            </div>
-                            <div style="text-align:right;flex-shrink:0;margin-left:10px;">
-                                <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">${t.entry||'0'}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div>
-                            </div>
-                        </div>
-                        <!-- Card Body -->
-                        <div class="tc-body">
-                            ${t.setup&&t.setup!=='-'?`<div class="text-sm font-bold text-blue-600 dark:text-blue-400 mb-1">${t.setup}</div>`:''}
-                            ${t.remark?`<div class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-2 line-clamp-2">📝 ${t.remark}</div>`:'<div style="margin-bottom:6px;"></div>'}
-                            <!-- SL/TP · Mood grid -->
-                            <div class="tc-grid">
-                                <div>
-                                    <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">SL / TP</div>
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">
-                                        <span class="text-red-500 font-semibold">SL</span> ${t.slPrice||'0'}<br>
-                                        <span class="text-green-600 font-semibold">TP</span> ${t.tpPrice||'0'}
+                                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                                    <div>
+                                        ${t.setup&&t.setup!=='-'?`<div class="text-sm font-bold text-blue-600 dark:text-blue-400" style="margin-bottom:1px;">${t.setup}</div>`:''}
+                                        ${t.remark?`<div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2" style="line-height:1.4;">📝 ${t.remark}</div>`:''}
+                                    </div>
+                                    <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+                                        <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">${t.entry||'0'}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">${t.lot||'0'} Lot</div>
+                                        <div style="font-weight:700;font-size:13px;" class="${pnlC}">${pnl>0?'+':''}${pnl}</div>
                                     </div>
                                 </div>
-                                <div>
-                                    <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">(pts)</div>
-                                    <div class="text-xs text-gray-600 dark:text-gray-400">${t.slPoints||'0'}p<br>${t.tpPoints||'0'}p</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">อารมณ์</div>
-                                    <div class="text-xs text-gray-600 dark:text-gray-400">${t.emotion||'-'}</div>
-                                </div>
                             </div>
-                            <!-- Actions -->
-                            <div class="tc-act">
-                                ${imgs.length?`<div style="flex-shrink:0;">${imgEl}</div>`:''}
-                                <button onclick="editTrade(${t.id})" class="bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition shadow-sm" style="flex:1;padding:6px 10px;border:none;cursor:pointer;color:#fff!important;"><i class="ti ti-pencil btn-icon" style="font-size:13px;vertical-align:-1px;margin-right:3px;"></i>Edit</button>
-                                <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" class="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold transition" style="flex:1;padding:6px 10px;cursor:pointer;"><i class="ti ti-trash btn-icon" style="font-size:13px;vertical-align:-1px;margin-right:3px;"></i>ลบ</button>
-                                <div style="display:flex;gap:4px;">
-                                    <button onclick="moveTrade(${t.id},-1)" class="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded font-bold transition" style="padding:6px 9px;font-size:11px;cursor:pointer;">▲</button>
-                                    <button onclick="moveTrade(${t.id},1)"  class="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded font-bold transition" style="padding:6px 9px;font-size:11px;cursor:pointer;">▼</button>
-                                </div>
+                        </div>
+                        <!-- Info strip -->
+                        <div style="background:rgba(0,0,0,0.04);padding:6px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:0.5px solid rgba(0,0,0,0.06);">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">${t.timeIn||'-'}${t.timeOut?'–'+t.timeOut:''}</span>
+                            <span style="color:rgba(0,0,0,0.15);">|</span>
+                            <span class="text-xs"><span style="color:#dc2626;font-weight:600;">SL</span> <span class="text-gray-700 dark:text-gray-300 text-xs">${t.slPrice||'0'} <span class="text-gray-400">(${t.slPoints||'0'}p)</span></span></span>
+                            <span class="text-xs"><span style="color:#16a34a;font-weight:600;">TP</span> <span class="text-gray-700 dark:text-gray-300 text-xs">${t.tpPrice||'0'} <span class="text-gray-400">(${t.tpPoints||'0'}p)</span></span></span>
+                            ${t.confidence>0?`<span style="color:#d97706;font-size:12px;letter-spacing:1px;">${'★'.repeat(t.confidence)}</span>`:''}
+                            ${t.emotion?`<span class="text-xs text-gray-600 dark:text-gray-400">${t.emotion}</span>`:''}
+                        </div>
+                        <!-- Actions -->
+                        <div class="tc-act" style="padding:8px 12px;">
+                            ${imgs.length?`<div style="flex-shrink:0;">${imgEl}</div>`:''}
+                            <button onclick="editTrade(${t.id})" class="bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition shadow-sm" style="flex:1;padding:6px 10px;border:none;cursor:pointer;color:#fff!important;"><i class="ti ti-pencil btn-icon" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Edit</button>
+                            <button onclick="openDeleteModal(${t.id}, '${t.direction}', '${t.result}', '${t.setup||'-'}', '${t.pnl||0}')" class="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold transition" style="flex:1;padding:6px 10px;cursor:pointer;"><i class="ti ti-trash btn-icon" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>ลบ</button>
+                            <div style="display:flex;gap:4px;">
+                                <button onclick="moveTrade(${t.id},-1)" class="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded font-bold transition" style="padding:6px 9px;font-size:11px;cursor:pointer;">▲</button>
+                                <button onclick="moveTrade(${t.id},1)"  class="bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded font-bold transition" style="padding:6px 9px;font-size:11px;cursor:pointer;">▼</button>
                             </div>
                         </div>
                     </div>
