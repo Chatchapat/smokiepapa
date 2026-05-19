@@ -2277,8 +2277,8 @@ async function renderWeeklyCalendar(targetDateStr) {
     } catch(e){ console.error(e); }
 
     const todayStr = new Date().toISOString().split('T')[0];
-    const yestDate = new Date(); yestDate.setDate(yestDate.getDate()-1);
-    const yestStr  = yestDate.toISOString().split('T')[0];
+    const prevDate = new Date(targetDateStr); prevDate.setDate(prevDate.getDate()-1);
+    const prevStr  = prevDate.toISOString().split('T')[0];
 
     const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     let html='';
