@@ -671,7 +671,7 @@
         .trade-card-mobile {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 0 12px 12px 0;
             overflow: hidden;
             color: #1e293b;
         }
@@ -711,7 +711,7 @@
         /* Card mode — activated when JS adds .table-mobile to #historyTable */
         #historyTable.table-mobile { display:block !important; border:none !important; background:transparent !important; color:inherit !important; width:100% !important; }
         #historyTable.table-mobile thead { display:none !important; }
-        #historyTable.table-mobile tbody { display:flex; flex-direction:column; gap:10px; width:100%; }
+        #historyTable.table-mobile tbody { display:flex; flex-direction:column; gap:10px; width:100%; padding-bottom:80px; }
         #historyTable.table-mobile .trade-row-desktop { display:none !important; }
         #historyTable.table-mobile .trade-row-mobile  { display:block !important; width:100%; }
         /* td must stretch full width */
@@ -754,8 +754,8 @@
             /* ── Item 1: Weekly strip — show only today + yesterday ── */
             #weeklyCalendar { display:flex !important; gap:8px !important; }
             #weeklyCalendar > div { display:none !important; flex:1 !important; min-width:0 !important; }
-            #weeklyCalendar > div.wc-today,
-            #weeklyCalendar > div.wc-yesterday { display:block !important; }
+            #weeklyCalendar > div.wc-selected,
+            #weeklyCalendar > div.wc-prev { display:block !important; }
 
             /* ── Items 2&3: History header — single-row, compact ── */
             #historyTableHeader {
@@ -2296,7 +2296,7 @@ async function renderWeeklyCalendar(targetDateStr) {
         const sel=ds===targetDateStr;
         const card=sel?'bg-blue-50 border-blue-400 shadow-sm dark:bg-slate-800 dark:border-blue-500':'bg-white border-gray-200 hover:bg-gray-50 dark:bg-slate-800 dark:border-slate-700';
         // mobile visibility classes
-        const mobileClass = ds===todayStr ? 'wc-today' : ds===yestStr ? 'wc-yesterday' : '';
+        const mobileClass = ds===targetDateStr ? 'wc-selected' : ds===prevStr ? 'wc-prev' : '';
         html+=`<div onclick="selectCalendarDate('${ds}')" class="flex flex-col p-2.5 rounded-xl border ${card} cursor-pointer transition text-center h-full justify-between ${mobileClass}">
             <div class="text-xs font-bold text-gray-400 uppercase">${dayNames[i]} <span class="text-gray-700 dark:text-gray-200 text-sm ml-1">${String(cur.getDate()).padStart(2,'0')}</span></div>
             <div class="mt-2 flex flex-col gap-1">
@@ -2555,7 +2555,7 @@ async function renderHistory() {
             const sessBadge=sess&&sess!=='-'?`<span class="inline-block text-[9px] px-1.5 py-0.5 rounded font-bold border ${getSessionColor(sess)} whitespace-nowrap">${sess}</span>`:'';
             const orderNum=hist.length-idx;
             return `
-            <tr class="trade-row-desktop hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-b border-gray-100 dark:border-slate-800/50">
+            <tr class="trade-row-desktop hover:bg-gray-50 dark:hover:bg-slate-800/50 transition border-b border-gray-100 dark:border-slate-800/50 ${t.result==='WIN'?'result-win':t.result==='LOSS'?'result-loss':t.result==='BE'?'result-be':'result-run'}">
                 <td class="px-2 py-3 text-xs font-bold text-gray-400 dark:text-gray-500 align-top text-center">#${orderNum}</td>
                 <td class="px-2 py-3 text-xs text-gray-600 dark:text-gray-400 align-top whitespace-nowrap">
                     <div class="font-mono leading-snug">${t.timeIn||'-'}</div>
