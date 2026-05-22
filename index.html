@@ -1698,7 +1698,7 @@ async function connectSupabase() {
         if (!supabaseClient || _credKey !== ck) {
             supabaseClient = supabase.createClient(url, key, {
                 auth: {
-                    persistSession: false,
+                    persistSession: true,
                     autoRefreshToken: false,
                 }
             });
@@ -1767,7 +1767,7 @@ window.onload = async function() {
             setConnectionStatus('loading');
             supabaseClient = supabase.createClient(creds.url, creds.key, {
                 auth: {
-                    persistSession: false,   // ไม่พึ่ง auth session — ใช้ anon key โดยตรงทุกครั้ง
+                    persistSession: true,   // ไม่พึ่ง auth session — ใช้ anon key โดยตรงทุกครั้ง
                     autoRefreshToken: false,
                 }
             });
