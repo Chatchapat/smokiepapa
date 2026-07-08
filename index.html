@@ -3721,5 +3721,152 @@ async function deletePlaybook(id) {
     window._checkTableLayout = applyTableLayout;
 })();
 </script>
+<script>
+/* ════════════════════════════════════════════════════════════
+   Trading Journal — อัปเดต v16
+   (A) เชื่อม Supabase อัตโนมัติ ไม่ต้องกรอกทุกวัน
+   (B) นาฬิกาหน้าปัด 1–12 แบบ 2 วง
+   *** ก๊อปทั้งบล็อกนี้ไปวางก่อนบรรทัด </body> ที่ล่างสุดของไฟล์ ***
+   บล็อกนี้จะเขียนทับของเก่าให้เอง ไม่ต้องลบอะไร
+   ════════════════════════════════════════════════════════════ */
+
+// ── (A) ค่าเชื่อมต่อ Supabase แบบฝังในไฟล์ ──
+const DEFAULT_SUPABASE = {
+    url: 'https://onvgwtmqumzpmyhndnay.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9udmd3dG1xdW16cG15aG5kbmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNTI0MzAsImV4cCI6MjA5MzcyODQzMH0.ExAbhYcavKwYdmv6t1Eq-E5bIqpIZxbbwHivNBwE9DI'
+};
+
+// เขียนทับ getCredsAny เดิม — เพิ่มการใช้ค่า default เป็นตัวสำรอง
+function getCredsAny() {
+    const ls = getCreds();
+    if (ls?.url && ls?.key) return ls;
+    try { const ss = JSON.parse(sessionStorage.getItem('sb_creds_session')||'null'); if (ss?.url && ss?.key) { saveCreds(ss.url, ss.key); return ss; } } catch(e){}
+    try { const match = document.cookie.match(/sb_creds=([^;]+)/); if (match) { const ck = JSON.parse(decodeURIComponent(match[1])); if (ck?.url && ck?.key) { saveCreds(ck.url, ck.key); return ck; } } } catch(e){}
+    if (DEFAULT_SUPABASE.url && DEFAULT_SUPABASE.key) { saveCreds(DEFAULT_SUPABASE.url, DEFAULT_SUPABASE.key); return { url: DEFAULT_SUPABASE.url, key: DEFAULT_SUPABASE.key }; }
+    return null;
+}
+
+// ── (B) นาฬิกาหน้าปัด 1–12 · 2 วง (เวลาไทย UTC+7) ──
+const CLOCK_SESSIONS = [
+    { id:'arcSyd', rowId:'sessSyd', start:300,  end:840,  color:'#f97316', r:42 }, // Sydney   05:00–14:00
+    { id:'arcLon', rowId:'sessLon', start:840,  end:1380, color:'#3b82f6', r:42 }, // London   14:00–23:00
+    { id:'arcTok', rowId:'sessTok', start:420,  end:960,  color:'#ec4899', r:30 }, // Tokyo    07:00–16:00
+    { id:'arcNy',  rowId:'sessNy',  start:1140, end:1680, color:'#22c55e', r:30, wrap:true }, // New York 19:00–04:00
+];
+function clockSessionActive(s, mins) {
+    return s.wrap ? (mins >= 1140 || mins < 240) : (mins >= s.start && mins < s.end);
+}
+function to12hAngle(mins) {
+    const h = Math.floor(mins / 60) % 12;
+    const m = mins % 60;
+    return (h * 30 + m * 0.5) * Math.PI / 180 - Math.PI / 2;
+}
+function buildSessionArc(s) {
+    const steps = Math.max(40, Math.round((s.end - s.start) / 8));
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+        const mins = s.start + (s.end - s.start) * (i / steps);
+        const a = to12hAngle(mins);
+        pts.push(`${(60 + s.r * Math.cos(a)).toFixed(1)},${(60 + s.r * Math.sin(a)).toFixed(1)}`);
+    }
+    return pts.join(' ');
+}
+function updateClockTheme() {
+    const isWV   = document.documentElement.classList.contains('winter-void');
+    const isDark = document.documentElement.classList.contains('dark');
+    const face     = document.getElementById('clockFace');
+    const hourHand = document.getElementById('clockHour');
+    const minHand  = document.getElementById('clockMin');
+    if (isWV) {
+        if (face)     { face.setAttribute('fill', '#1e1a17'); face.setAttribute('stroke', 'rgba(164,159,157,0.2)'); }
+        if (hourHand) hourHand.setAttribute('stroke', '#E8E6E2');
+        if (minHand)  minHand.setAttribute('stroke', '#E8E6E2');
+    } else if (isDark) {
+        if (face)     { face.setAttribute('fill', '#0f172a'); face.setAttribute('stroke', '#334155'); }
+        if (hourHand) hourHand.setAttribute('stroke', '#ffffff');
+        if (minHand)  minHand.setAttribute('stroke', '#ffffff');
+    } else {
+        if (face)     { face.setAttribute('fill', '#f1f5f9'); face.setAttribute('stroke', '#cbd5e1'); }
+        if (hourHand) hourHand.setAttribute('stroke', '#1e293b');
+        if (minHand)  minHand.setAttribute('stroke', '#475569');
+    }
+}
+function initClock() {
+    const arcsGroup  = document.getElementById('clockArcs');
+    const ticksGroup = document.getElementById('clockTicks');
+    if (!arcsGroup) return;
+    updateClockTheme();
+    new MutationObserver(updateClockTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    let html =
+        '<circle cx="60" cy="60" r="42" fill="none" stroke="#94a3b8" stroke-width="5" stroke-opacity="0.18"/>' +
+        '<circle cx="60" cy="60" r="30" fill="none" stroke="#94a3b8" stroke-width="5" stroke-opacity="0.18"/>';
+    html += CLOCK_SESSIONS.map(s =>
+        `<polyline id="${s.id}" points="${buildSessionArc(s)}" fill="none" stroke="${s.color}" stroke-width="5" stroke-opacity="0" stroke-linecap="round" stroke-linejoin="round"/>`
+    ).join('');
+    arcsGroup.innerHTML = html;
+    ticksGroup.innerHTML = Array.from({ length: 12 }, (_, i) => {
+        const n = i + 1;
+        const ang = (n / 12) * 2 * Math.PI - Math.PI / 2;
+        const x = 60 + 50 * Math.cos(ang), y = 60 + 50 * Math.sin(ang);
+        return `<text x="${x.toFixed(1)}" y="${(y + 2.6).toFixed(1)}" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="sans-serif" font-weight="bold">${n}</text>`;
+    }).join('');
+    tickClock();
+    setInterval(tickClock, 1000);
+}
+function tickClock() {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const th  = new Date(utc + 7 * 60 * 60000);
+    const h = th.getHours(), m = th.getMinutes(), s = th.getSeconds();
+    const totalMins = h * 60 + m;
+    setHandAngle('clockHour', (h % 12) * 30 + m * 0.5 + s * (0.5 / 60), 60, 30);
+    setHandAngle('clockMin',  m * 6 + s * 0.1, 60, 42);
+    setHandAngle('clockSec',  s * 6, 60, 47);
+    const timeEl = document.getElementById('clockTimeText');
+    if (timeEl) {
+        const h12 = h % 12 || 12;
+        const ampm = h < 12 ? 'AM' : 'PM';
+        timeEl.innerHTML = `<span class="text-base font-bold tabular-nums">${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}</span><span class="text-[11px] font-bold text-blue-300 ml-1">${ampm}</span>`;
+    }
+    const dateEl = document.getElementById('clockDateText');
+    if (dateEl) {
+        const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+        const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+        dateEl.textContent = days[th.getDay()] + ' ' + th.getDate() + ' ' + months[th.getMonth()] + ' ' + (th.getFullYear() + 543);
+    }
+    CLOCK_SESSIONS.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (el) el.setAttribute('stroke-opacity', clockSessionActive(s, totalMins) ? '1' : '0');
+    });
+    CLOCK_SESSIONS.forEach(s => {
+        const el = document.getElementById(s.rowId);
+        if (!el) return;
+        const active = clockSessionActive(s, totalMins);
+        if (active) {
+            el.style.background  = s.color + '20';
+            el.style.borderColor = s.color;
+            el.style.boxShadow   = 'inset 0 0 0 1px ' + s.color + '55';
+            const nameSpan = el.querySelector('.sess-name');
+            const timeSpan = el.querySelector('span:not(.sess-name)');
+            if (nameSpan) { nameSpan.style.color = s.color; nameSpan.style.fontWeight = '800'; }
+            const isDark = document.documentElement.classList.contains('dark');
+            if (timeSpan) { timeSpan.style.color = isDark ? '#ffffff' : '#1e293b'; timeSpan.style.fontWeight = '800'; }
+        } else {
+            el.style.background  = '';
+            el.style.borderColor = 'transparent';
+            el.style.boxShadow   = '';
+            el.querySelectorAll('span').forEach(sp => { sp.style.color = ''; sp.style.fontWeight = ''; });
+        }
+    });
+    if (document.getElementById('timeIn')?.value) updateSessionUI();
+}
+function setHandAngle(id, angleDeg, cx, length) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    el.setAttribute('x2', (cx + length * Math.cos(rad)).toFixed(2));
+    el.setAttribute('y2', (cx + length * Math.sin(rad)).toFixed(2));
+}
+</script>
 </body>
 </html>
